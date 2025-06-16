@@ -8,7 +8,7 @@ find "$WATCH_DIR" -type f -name '*.*' -print0 | while IFS= read -r -d '' FILE; d
     for ext in "${SUPPORTED_EXTS[@]}"; do
         if [[ "$FILE" == *".$ext" ]]; then
             echo "Found archive: $(basename "$FILE")"
-            $DECOMPRESS_SCRIPT "$FILE" && rm -f "$FILE"  # Optional: Delete after extraction
+            $DECOMPRESS_SCRIPT "$FILE"
             break
         fi
     done

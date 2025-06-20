@@ -1,8 +1,13 @@
 #!/bin/bash
 
-# Simple script to decompress downloaded archives based on their extension
+# Directory where archives are stored (e.g., ~/Downloads)
+DOWNLOADS_DIR="Downloads/"
+EXTRACT_DIR="$DOWNLOADS_DIR/extracted"
 
-# Check if a file was provided
+# Create extraction directory if it doesn't exist
+mkdir -p "$EXTRACT_DIR"
+
+# Check if file was provided
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <archive-file>"
     echo "Supported formats: .gz .bz2 .xz .zip .tar .tar.gz .tar.bz2 .tar.xz"
@@ -17,62 +22,70 @@ if [ ! -f "$FILE" ]; then
     exit 1
 fi
 
-# Get the file extension
-filename=$(basename -- "$FILE")
-extension="${filename##*.}"
+# Get filename without full path
+FILENAME=$(basename -- "$FILE")
 
-# Function to check if command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
+# Function to run a command and capture output/status
+run_command() {
+    local cmd="$@"
+    local output
+    output=$(eval "$cmd" 2>&1)
+    local status=$?
+    echo "$output"
+    return $status
 }
 
-# Decompress based on extension
-case "$filename" in
+# Decompress based on file type
+case "$FILENAME" in
     *.tar.gz|*.tgz)
-        echo "Decompressing tar.gz file..."
-        tar -xzf "$FILE"
+        echo "Extracting $FILENAME (tar.gz)..."
+        OUTPUT=$(run_command "tar -xzf \"$FILE\" -C \"$EXTRACT_DIR\"")
         ;;
     *.tar.bz2|*.tbz2)
-        echo "Decompressing tar.bz2 file..."
-        tar -xjf "$FILE"
+        echo "Extracting $FILENAME (tar.bz2)..."
+        OUTPUT=$(run_command "tar -xjf \"$FILE\" -C \"$EXTRACT_DIR\"")
         ;;
     *.tar.xz|*.txz)
-        echo "Decompressing tar.xz file..."
-        tar -xJf "$FILE"
+        echo "Extracting $FILENAME (tar.xz)..."
+        OUTPUT=$(run_command "tar -xJf \"$FILE\" -C \"$EXTRACT_DIR\"")
         ;;
     *.gz)
-        echo "Decompressing gzip file..."
-        if command_exists "pigz"; then
-            pigz -dk "$FILE"
-        else
-            gzip -dk "$FILE"
-        fi
+        echo "Extracting $FILENAME (gzip)..."
+        OUTPUT=$(run_command "gzip -dk \"$FILE\" && mv \"${FILE%.gz}\" \"$EXTRACT_DIR/\"")
         ;;
     *.bz2)
-        echo "Decompressing bzip2 file..."
-        bzip2 -dk "$FILE"
+        echo "Extracting $FILENAME (bzip2)..."
+        OUTPUT=$(run_command "bzip2 -dk \"$FILE\" && mv \"${FILE%.bz2}\" \"$EXTRACT_DIR/\"")
         ;;
     *.xz)
-        echo "Decompressing xz file..."
-        xz -dk "$FILE"
+        echo "Extracting $FILENAME (xz)..."
+        OUTPUT=$(run_command "xz -dk \"$FILE\" && mv \"${FILE%.xz}\" \"$EXTRACT_DIR/\"")
         ;;
     *.zip)
-        echo "Decompressing zip file..."
-        unzip "$FILE"
+        echo "Extracting $FILENAME (zip)..."
+        OUTPUT=$(run_command "unzip -q \"$FILE\" -d \"$EXTRACT_DIR\"")
         ;;
     *.tar)
-        echo "Decompressing tar file..."
-        tar -xf "$FILE"
+        echo "Extracting $FILENAME (tar)..."
+        OUTPUT=$(run_command "tar -xf \"$FILE\" -C \"$EXTRACT_DIR\"")
         ;;
     *)
-        echo "Error: Unknown or unsupported file format for '$FILE'"
+        echo "Error: Unsupported file format for '$FILENAME'"
         exit 1
         ;;
 esac
 
+# Check if extraction succeeded
 if [ $? -eq 0 ]; then
-    echo "Decompression successful!"
+    echo "Success! Extracted to: $EXTRACT_DIR"
+    echo "$OUTPUT" | while read -r line; do
+        echo "  → $line"
+    done
 else
-    echo "Decompression failed!"
+    echo "Extraction failed! Error:"
+    echo "$OUTPUT"
+    exit 1
 fi
 
+# Keep original archive in Downloads
+echo "Original archive kept: $FILE"

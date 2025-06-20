@@ -1,15 +1,12 @@
 #!/bin/bash
-
 WATCH_DIR="Downloads/"
 DECOMPRESS_SCRIPT="./autodescomp.sh"
-SUPPORTED_EXTS=("gz" "bz2" "xz" "zip" "tar" "tgz" "tbz2" "txz" "tar.gz" "tar.bz2" "tar.xz")
 
-find "$WATCH_DIR" -type f -name '*.*' -print0 | while IFS= read -r -d '' FILE; do
-    for ext in "${SUPPORTED_EXTS[@]}"; do
-        if [[ "$FILE" == *".$ext" ]]; then
-            echo "Found archive: $(basename "$FILE")"
-            $DECOMPRESS_SCRIPT "$FILE"
-            break
-        fi
-    done
+find "$WATCH_DIR" -type f -name '*.*' -print0 | while read -r FILE
+do
+    if [[ "$FILE" =~ \.(gz|bz2|xz|zip|tar|tgz|tbz2|txz)$ ]]; then
+        echo "Detected new archive: $FILE"
+        sleep 1  # Ensure file is fully downloaded
+        "$DECOMPRESS_SCRIPT" "$WATCH_DIR/$FILE"
+    fi
 done

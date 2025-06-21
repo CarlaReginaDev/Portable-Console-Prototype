@@ -27,7 +27,7 @@ FILENAME=$(basename -- "$FILE")
 
 # Function to run a command and capture output/status
 run_command() {
-    local cmd="$@"
+    local cmd="$*"
     local output
     output=$(eval "$cmd" 2>&1)
     local status=$?

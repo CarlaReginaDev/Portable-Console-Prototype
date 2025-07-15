@@ -63,14 +63,16 @@ class TouchMenuApp:
         main_frame.pack(expand=True, fill='both')
         
         # Row 1
-        ttk.Button(
+        button = ttk.Button(
             main_frame,
             image=self.load_icon("assets/retroarch.png"),
             style='Small.TButton',
             compound='top',
-            text="Home",
+            text="RetroArch",
             command=lambda: self.menu_action("Home")
-        ).grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        )
+        button.place(relheight=0.005,relwidth=0.005, relx=2, rely=5)
+        button.pack()
         
         # Configure grid weights
         main_frame.grid_columnconfigure(0, weight=1)

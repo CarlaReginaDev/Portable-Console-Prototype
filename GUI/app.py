@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, PhotoImage
 from tkinter.font import Font
 import os
+import subprocess
 
 class TouchMenuApp:
     def __init__(self, root):
@@ -11,9 +12,6 @@ class TouchMenuApp:
         
         # Configure styles
         self.setup_styles()
-        
-        # Load icons (replace with your own PNGs)
-        self.load_icon("assets/retroarch.png")
         
         # Create touch menu
         self.create_main_menu()
@@ -31,7 +29,7 @@ class TouchMenuApp:
             foreground='white'
         )
         self.button_style.map(
-            'Big.TButton',
+            'Small.TButton',
             background=[('active', '#2980b9'), ('pressed', '#1c638e')]
         )
 
@@ -66,12 +64,11 @@ class TouchMenuApp:
         button = ttk.Button(
             main_frame,
             image=self.load_icon("assets/retroarch.png"),
-            style='Small.TButton',
             compound='top',
             text="RetroArch",
             command=lambda: self.menu_action("Home")
-        )
-        button.place(relheight=0.005,relwidth=0.005, relx=2, rely=5)
+            )
+        button.place(relheight=0.0005,relwidth=0.0005, relx=2, rely=5)
         button.pack()
         
         # Configure grid weights
@@ -86,4 +83,12 @@ class TouchMenuApp:
         # Visual feedback (change button color temporarily)
         self.root.configure(background='#2ecc71')
         self.root.after(200, lambda: self.root.configure(background='#ecf0f1'))
+        home = os.path.expanduser("~")
+        core_path = os.path.join(home, ".config/retroarch/cores/mupen64plus_next_libretro.so")
+        rom_path = os.path.join(home, "Downloads/Yuke Yuke!! Trouble Makers (J) [!].n64")
+        subprocess.run([
+            "retroarch",
+            "-L", core_path,
+            rom_path
+        ])
 

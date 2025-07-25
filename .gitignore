@@ -1,3 +1,2 @@
-venv
-decompressor/Downloads
-GUI/__pycache__
+venv/
+decompressor/Downloads/

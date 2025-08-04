@@ -10,28 +10,8 @@ class TouchMenuApp:
         self.root.title("Touch Menu Demo")
         self.root.geometry("1024x600")  # Common tablet size
         
-        # Configure styles
-        self.setup_styles()
-        
         # Create touch menu
         self.create_main_menu()
-
-    def setup_styles(self):
-        """Configure touch-friendly styles"""
-        self.big_font = Font(family='Helvetica', size=24, weight='bold')
-        self.button_style = ttk.Style()
-        self.button_style.configure(
-            'Small.TButton',
-            font=self.big_font,
-            padding=30,
-            relief='flat',
-            background='#3498db',
-            foreground='white'
-        )
-        self.button_style.map(
-            'Small.TButton',
-            background=[('active', '#2980b9'), ('pressed', '#1c638e')]
-        )
 
     def load_icon(self, icon_path):
         """Load an icon from file with proper error handling"""
@@ -57,7 +37,7 @@ class TouchMenuApp:
 
     def create_main_menu(self):
         """Create touch-friendly menu grid"""
-        main_frame = ttk.Frame(self.root, padding=20)
+        main_frame = ttk.Frame(self.root, width=0.0125)
         main_frame.pack(expand=True, fill='both')
         
         # Row 1
@@ -66,23 +46,14 @@ class TouchMenuApp:
             image=self.load_icon("assets/retroarch.png"),
             compound='top',
             text="RetroArch",
-            command=lambda: self.menu_action("Home")
-            )
-        button.place(relheight=0.0005,relwidth=0.0005, relx=2, rely=5)
+            command=lambda: self.menu_action("Home"),
+            width=0.25,
+        )
         button.pack()
         
-        # Configure grid weights
-        main_frame.grid_columnconfigure(0, weight=1)
-        main_frame.grid_columnconfigure(1, weight=1)
-        main_frame.grid_rowconfigure(0, weight=1)
-        main_frame.grid_rowconfigure(1, weight=1)
-
     def menu_action(self, item):
         """Handle menu selection with visual feedback"""
         print(f"Selected: {item}")
-        # Visual feedback (change button color temporarily)
-        self.root.configure(background='#2ecc71')
-        self.root.after(200, lambda: self.root.configure(background='#ecf0f1'))
         home = os.path.expanduser("~")
         core_path = os.path.join(home, ".config/retroarch/cores/mupen64plus_next_libretro.so")
         rom_path = os.path.join(home, "Downloads/Yuke Yuke!! Trouble Makers (J) [!].n64")

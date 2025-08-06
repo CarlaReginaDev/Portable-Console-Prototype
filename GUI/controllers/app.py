@@ -1,13 +1,12 @@
 from tkinter import ttk, PhotoImage
 import os
 import subprocess
-from typing import Dict, List
 
 class TouchMenuApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Touch Menu Demo")
-        self.root.geometry("1024x600")  # Common tablet size
+        self.root.attributes('-fullscreen', True)  # Common tablet size
         
         self.games = {
             "Trouble Makers": {
@@ -18,7 +17,7 @@ class TouchMenuApp:
             "Super Mario 64": {
                 "icon": "assets/retroarch.png",  
                 "core": "mupen64plus_next_libretro.so",
-                "rom": "Super Mario 64 (U) [!].n64"
+                "rom": "Super Mario 64 (USA).n64"
             },
             "Zelda OOT": {
                 "icon": "assets/retroarch.png", 

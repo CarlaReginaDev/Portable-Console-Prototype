@@ -1,14 +1,18 @@
 import tkinter as tk
 from tkinter import ttk, PhotoImage
+from tkinter import *
 from tkinter.font import Font
 import os
 import subprocess
 
-class TouchMenuApp:
-    def __init__(self, root):
+class TouchMenuApp:#tamanho menu principal
+    def __init__(self, root): 
         self.root = root
         self.root.title("Touch Menu Demo")
         self.root.geometry("1024x600")  # Common tablet size
+        self.root.resizable(True, True)
+        self.root.minsize(width= 788, height = 588)
+        self.root.configure(bg='#3498db')
         
         # Configure styles
         self.setup_styles()
@@ -83,12 +87,11 @@ class TouchMenuApp:
         # Visual feedback (change button color temporarily)
         self.root.configure(background='#2ecc71')
         self.root.after(200, lambda: self.root.configure(background='#ecf0f1'))
-        home = os.path.expanduser("~")
-        core_path = os.path.join(home, ".config/retroarch/cores/mupen64plus_next_libretro.so")
-        rom_path = os.path.join(home, "Downloads/Yuke Yuke!! Trouble Makers (J) [!].n64")
-        subprocess.run([
-            "retroarch",
-            "-L", core_path,
-            rom_path
-        ])
+        
+        retroarch_path = r"C:\Users\carla\Desktop\RetroArch\RetroArch-Win64\retroarch.exe"
+
+        try:
+            subprocess.Popen([retroarch_path])
+        except Exception as e:
+            print("Erro ao abrir RetroArch. Por favor, tente novamente.",e)
 

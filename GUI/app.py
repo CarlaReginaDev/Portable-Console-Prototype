@@ -72,29 +72,29 @@ class TouchMenuApp:#tamanho menu principal
         main_frame.pack(expand=True, fill='both')
         
         button = ttk.Button( main_frame,
-            image= self.load_icon("assets/gameboy.png", size=(150, 50)),
+            image= self.load_icon("assets/gameboy.png", size=(170, 50)),
             command=lambda: self.menu_action("Home"))
-        button.pack()
+        button.place(relx=0.1, rely= 0.03)
 
         button2 = ttk.Button( main_frame, 
             image= self.load_icon("assets/supernintendo.png", size=(300,70)),
             command=lambda: self.menu_action("Super Nintendo"))
-        button2.pack()
+        button2.place(relx=0.1, rely=0.2)
         
         button3 = ttk.Button( main_frame, 
             image= self.load_icon("assets/gameboy_advance.png", size=(200,70)),
             command=lambda: self.menu_action("Game Boy Advance"))
-        button3.pack()
+        button3.place(relx=0.1, rely= 0.4)
 
         button4 = ttk.Button( main_frame, 
-            image= self.load_icon("assets/MegaDrive.png", size=(250,70)),
+            image= self.load_icon("assets/MegaDrive.png", size=(270,70)),
             command=lambda: self.menu_action("Mega Drive"))
-        button4.pack()
+        button4.place(relx=0.1, rely=0.6)
 
-        button2 = ttk.Button( main_frame, 
+        button5 = ttk.Button( main_frame, 
             image= self.load_icon("assets/playstation.png", size=(200,70)),
             command=lambda: self.menu_action("Playstation 1"))
-        button2.pack()
+        button5.place(relx=0.1, rely=0.8)
         
         # Configure grid weights
         main_frame.grid_columnconfigure(0, weight=1)

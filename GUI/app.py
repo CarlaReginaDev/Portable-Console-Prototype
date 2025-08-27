@@ -4,15 +4,17 @@ from tkinter import *
 from tkinter.font import Font
 import os
 import subprocess
+from PIL import Image, ImageTk
 
 class TouchMenuApp:#tamanho menu principal
     def __init__(self, root): 
         self.root = root
         self.root.title("Touch Menu Demo")
-        self.root.geometry("1024x600")  # Common tablet size
+        self.root.geometry("1024x600")
+        self.root.configure(bg="blue")
         self.root.resizable(True, True)
         self.root.minsize(width= 788, height = 588)
-        self.root.configure(bg='#3498db')
+
         
         # Configure styles
         self.setup_styles()
@@ -23,29 +25,34 @@ class TouchMenuApp:#tamanho menu principal
     def setup_styles(self):
         """Configure touch-friendly styles"""
         self.big_font = Font(family='Helvetica', size=24, weight='bold')
-        self.button_style = ttk.Style()
-        self.button_style.configure(
+        self.style = ttk.Style()
+        try:
+            self.style.theme_use('clam')
+        except Exception:
+            pass
+
+        self.style.configure('Main.TFrame', background="#36b0e8")
+    
+        self.style.configure(
             'Small.TButton',
             font=self.big_font,
             padding=30,
             relief='flat',
-            background='#3498db',
-            foreground='white'
-        )
-        self.button_style.map(
-            'Small.TButton',
-            background=[('active', '#2980b9'), ('pressed', '#1c638e')]
-        )
+            foreground='white')
+        
+        self.style.map('Small.TButton',background=[('active', '#2980b9'), ('pressed', '#1c638e')])
+  
 
-    def load_icon(self, icon_path):
-        """Load an icon from file with proper error handling"""
+    def load_icon(self, icon_path, size=(100,100)):
+
         try:
-            # Check if file exists first
+             
             if not os.path.exists(icon_path):
                 raise FileNotFoundError(f"Icon not found: {icon_path}")
                 
-            # Load the image
-            icon = PhotoImage(file=icon_path)
+            img = Image.open(icon_path)
+            img = img.resize(size, Image.Resampling.LANCZOS)
+            icon = ImageTk.PhotoImage(img)
             
             # Store reference to prevent garbage collection
             if not hasattr(self, '_icon_references'):
@@ -53,27 +60,41 @@ class TouchMenuApp:#tamanho menu principal
             self._icon_references.append(icon)
             
             return icon
-            
         except Exception as e:
-            print(f"Error loading icon {icon_path}: {str(e)}")
-            # Return a fallback icon
-            return self.create_fallback_icon("!")
+            print(f"Erro ao carregar {icon_path}: {e}")
+            return None
+            
+
 
     def create_main_menu(self):
         """Create touch-friendly menu grid"""
-        main_frame = ttk.Frame(self.root, padding=20)
+        main_frame = ttk.Frame(self.root, padding=20, style='Main.TFrame')
         main_frame.pack(expand=True, fill='both')
         
-        # Row 1
-        button = ttk.Button(
-            main_frame,
-            image=self.load_icon("assets/retroarch.png"),
-            compound='top',
-            text="RetroArch",
-            command=lambda: self.menu_action("Home")
-            )
-        button.place(relheight=0.0005,relwidth=0.0005, relx=2, rely=5)
+        button = ttk.Button( main_frame,
+            image= self.load_icon("assets/gameboy.png", size=(150, 50)),
+            command=lambda: self.menu_action("Home"))
         button.pack()
+
+        button2 = ttk.Button( main_frame, 
+            image= self.load_icon("assets/supernintendo.png", size=(300,70)),
+            command=lambda: self.menu_action("Super Nintendo"))
+        button2.pack()
+        
+        button3 = ttk.Button( main_frame, 
+            image= self.load_icon("assets/gameboy_advance.png", size=(200,70)),
+            command=lambda: self.menu_action("Game Boy Advance"))
+        button3.pack()
+
+        button4 = ttk.Button( main_frame, 
+            image= self.load_icon("assets/MegaDrive.png", size=(250,70)),
+            command=lambda: self.menu_action("Mega Drive"))
+        button4.pack()
+
+        button2 = ttk.Button( main_frame, 
+            image= self.load_icon("assets/playstation.png", size=(200,70)),
+            command=lambda: self.menu_action("Playstation 1"))
+        button2.pack()
         
         # Configure grid weights
         main_frame.grid_columnconfigure(0, weight=1)

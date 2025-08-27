@@ -67,7 +67,6 @@ class TouchMenuApp:#tamanho menu principal
 
 
     def create_main_menu(self):
-        """Create touch-friendly menu grid"""
         main_frame = ttk.Frame(self.root, padding=20, style='Main.TFrame')
         main_frame.pack(expand=True, fill='both')
         
@@ -103,7 +102,6 @@ class TouchMenuApp:#tamanho menu principal
         main_frame.grid_rowconfigure(1, weight=1)
 
     def menu_action(self, item):
-        """Handle menu selection with visual feedback"""
         print(f"Selected: {item}")
         # Visual feedback (change button color temporarily)
         self.root.configure(background='#2ecc71')

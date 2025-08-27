@@ -15,6 +15,23 @@ class TouchMenuApp:#tamanho menu principal
         self.root.resizable(True, True)
         self.root.minsize(width= 788, height = 588)
 
+        self.BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.ROMS_DIR = os.path.join(self.BASE_DIR, "ROMs")
+        self.PLATAFORMAS = {
+            "Super Nintendo": {
+                "core": "snes9x",
+                "roms": {
+                    "Super Bomberman 4": os.path.join(self.ROMS_DIR, "snes", "Super Bomberman 4 (Japan).sfc")
+                }
+            },
+            "Game Boy Advance": {
+                "core": "mgba",
+                "roms": {
+                    "The Legend of Zelda": os.path.join(self.ROMS_DIR, "gb_advance", "Legend of Zelda, The - A Link to the Past & Four Swords (USA).gba")
+
+                }
+            }
+        }
         
         # Configure styles
         self.setup_styles()
@@ -72,7 +89,7 @@ class TouchMenuApp:#tamanho menu principal
         
         button = ttk.Button( main_frame,
             image= self.load_icon("assets/gameboy.png", size=(170, 50)),
-            command=lambda: self.menu_action("Home"))
+            command=lambda: self.menu_action("Game Boy"))
         button.place(relx=0.1, rely= 0.03)
 
         button2 = ttk.Button( main_frame, 
@@ -101,14 +118,39 @@ class TouchMenuApp:#tamanho menu principal
         main_frame.grid_rowconfigure(0, weight=1)
         main_frame.grid_rowconfigure(1, weight=1)
 
-    def menu_action(self, item):
-        print(f"Selected: {item}")
-        self.root.configure(background='#2ecc71')
-        self.root.after(200, lambda: self.root.configure(background='#ecf0f1'))
-        
+    def menu_action(self, plataforma):
+        if plataforma not in self.PLATAFORMAS:
+            print(f"Plataforma {plataforma} não encontrada.")
+            return
+
+    # Fecha/limpa o menu anterior
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        frame_jogos = ttk.Frame(self.root, padding=20, style='Main.TFrame')
+        frame_jogos.pack(expand=True, fill='both')
+
+        label = ttk.Label(frame_jogos, text=f"Jogos - {plataforma}", font=self.big_font, background="#36b0e8", foreground="white")
+        label.pack(pady=10)
+
+        roms = self.PLATAFORMAS[plataforma]["roms"]
+
+        for jogo, caminho_rom in roms.items():
+            btn = ttk.Button(frame_jogos, text=jogo, style='Small.TButton',
+                         command=lambda r=caminho_rom, p=plataforma: self.rodar_jogo(p, r))
+            btn.pack(pady=5, fill='x')
+
+    # Botão para voltar ao menu principal
+        voltar_btn = ttk.Button(frame_jogos, text="⏪ Voltar", style='Small.TButton',
+                            command=self.recriar_menu_principal)
+        voltar_btn.pack(pady=20, fill='x')
+
+    def rodar_jogo(self, plataforma, caminho_rom):
         retroarch_path = r"C:\Users\carla\Desktop\RetroArch\RetroArch-Win64\retroarch.exe"
+        core = self.PLATAFORMAS[plataforma]["core"]
 
         try:
-            subprocess.Popen([retroarch_path])
+            subprocess.Popen([retroarch_path, "-L", core, caminho_rom])
+            print(f"Iniciando {caminho_rom} no {plataforma}...")
         except Exception as e:
-            print("Erro ao abrir RetroArch. Por favor, tente novamente.",e)
+            print("Erro ao abrir jogo:", e)

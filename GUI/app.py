@@ -1,23 +1,26 @@
 import tkinter as tk
-from tkinter import ttk, PhotoImage
 from tkinter import *
+from tkinter import ttk
 from tkinter.font import Font
 import os
 import subprocess
 from PIL import Image, ImageTk
 
+
+
 class TouchMenuApp:#tamanho menu principal
     def __init__(self, root): 
         self.root = root
-        self.root.title("Touch Menu Demo")
-        self.root.geometry("1024x600")
+        self.root.title("Menu Principal")
+        self.root.geometry("1024x600") #colocar tela inteira
         self.root.configure(bg="blue")
-        self.root.resizable(True, True)
+        self.root.resizable(True, True) #false
         self.root.minsize(width= 788, height = 588)
 
         self.BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.ROMS_DIR = os.path.join(self.BASE_DIR, "ROMs")
-        self.PLATAFORMAS = {
+        #dicionário deve ser mais dinâmico. A pasta de ROMs deve ficar oculta
+        self.PLATAFORMAS = { 
             "Super Nintendo": {
                 "core": "snes9x",
                 "roms": {
@@ -30,7 +33,13 @@ class TouchMenuApp:#tamanho menu principal
                     "The Legend of Zelda": os.path.join(self.ROMS_DIR, "gb_advance", "Legend of Zelda, The - A Link to the Past & Four Swords (USA).gba")
 
                 }
-            }
+            },
+            "Game Boy": {
+                "core": "sameboy",
+                "roms": {
+                    "Pokemon - Red Version": os.path.join(self.ROMS_DIR, "gameboy", "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb")
+                }
+            },
         }
         
         # Configure styles
@@ -109,7 +118,7 @@ class TouchMenuApp:#tamanho menu principal
 
         button5 = ttk.Button( main_frame, 
             image= self.load_icon("assets/playstation.png", size=(200,70)),
-            command=lambda: self.menu_action("Playstation 1"))
+            command=lambda: self.menu_action("Playstation"))
         button5.place(relx=0.1, rely=0.8)
         
         # Configure grid weights
@@ -142,11 +151,11 @@ class TouchMenuApp:#tamanho menu principal
 
     # Botão para voltar ao menu principal
         voltar_btn = ttk.Button(frame_jogos, text="⏪ Voltar", style='Small.TButton',
-                            command=self.recriar_menu_principal)
+                            command=self.create_main_menu)
         voltar_btn.pack(pady=20, fill='x')
 
     def rodar_jogo(self, plataforma, caminho_rom):
-        retroarch_path = r"C:\Users\carla\Desktop\RetroArch\RetroArch-Win64\retroarch.exe"
+        retroarch_path = r"C:\Users\carla\Desktop\RetroArch\RetroArch-Win64\retroarch.exe" #forma de variável de ambiente
         core = self.PLATAFORMAS[plataforma]["core"]
 
         try:

@@ -12,10 +12,10 @@ class TouchMenuApp:#tamanho menu principal
     def __init__(self, root): 
         self.root = root
         self.root.title("Menu Principal")
-        self.root.geometry("1024x600") #colocar tela inteira
+        self.root.attributes("-fullscreen", True)
+        self.root.bind('<Escape>', self.sair_tela)
         self.root.configure(bg="blue")
-        self.root.resizable(True, True) #false
-        self.root.minsize(width= 788, height = 588)
+
 
         self.BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.ROMS_DIR = os.path.join(self.BASE_DIR, "ROMs")
@@ -47,6 +47,10 @@ class TouchMenuApp:#tamanho menu principal
         
         # Create touch menu
         self.create_main_menu()
+
+    def sair_tela(self, event=None):
+        self.root.attributes('-fullscreen', False)
+        self.root.geometry('1000x800')
 
     def setup_styles(self):
         """Configure touch-friendly styles"""

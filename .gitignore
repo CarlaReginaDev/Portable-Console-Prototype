@@ -2,3 +2,4 @@ venv/
 decompressor/Downloads/
 GUI/__pycache__/
 GUI/controllers/__pycache__/
+GUI/games.json

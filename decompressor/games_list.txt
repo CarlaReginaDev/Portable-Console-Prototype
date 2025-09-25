@@ -1,7 +1,2 @@
-Super Mario World (USA).sfc
-Donkey Kong Country.sfc
-The Legend of Zelda - A Link to the Past.sfc
-Sonic The Hedgehog.md
-Streets of Rage 2.md
-Final Fantasy VII.cue
-Metal Gear Solid.bin
+Downloads/games/Star Ocean (tr)_1.sfc
+Downloads/games/Sonic The Hedgehog 2 (World) (Rev A)_1.md

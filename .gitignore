@@ -1,5 +1,7 @@
 venv/
 decompressor/Downloads/
+decompressor/decompressor.log
+decompressor/Downloads/games/decompressor.log
 GUI/__pycache__/
 GUI/controllers/__pycache__/
 GUI/games.json

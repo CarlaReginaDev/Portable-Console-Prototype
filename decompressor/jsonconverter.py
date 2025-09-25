@@ -129,13 +129,13 @@ def main():
     parser = argparse.ArgumentParser(description='Convert TXT game list to JSON format')
     parser.add_argument('txt_file', help='Path to the input text file')
     parser.add_argument('games_dir', help='Path to the directory containing game files')
-    parser.add_argument('-o', '--output', default='games.json', 
+    parser.add_argument('-o', '--output', default='/home/kleber/playground/Portable-Console-Prototype/GUI/games.json', 
                        help='Output JSON file path (default: games.json)')
     
     args = parser.parse_args()
     
     # Convert the files
-    success = convert_txt_to_json(args.txt_file, args.games_dir, args.output)
+    success = convert_txt_to_json(args.txt_file, args.games_dir, "/home/kleber/playground/IFRN/Portable-Console-Prototype/GUI/games.json" )
     
     if success:
         print("\nConversion completed successfully!")
@@ -146,7 +146,7 @@ def main():
     return 0
 
 # Alternative: Simple function for direct use
-def simple_convert(txt_file, games_dir, output_file="games.json"):
+def simple_convert(txt_file, games_dir, output_file):
     """Simple one-function conversion without command line arguments"""
     return convert_txt_to_json(txt_file, games_dir, output_file)
 

@@ -7,6 +7,8 @@ DECOMPRESSOR_SCRIPT="./decompressor.sh"
 OUTPUT_FILE="games_list.txt"
 LOG_FILE="decompression.log"
 PYTHON_SCRIPT="jsonconverter.py"
+# NOTE: The -o flag in PYTHON_SCRIPT_ARGS will cause games.json to be overwritten.
+# You will need to modify jsonconverter.py if you require appending to JSON.
 PYTHON_SCRIPT_ARGS="games_list.txt $EXTRACT_DIR -o /home/kleber/playground/IFRN/Portable-Console-Prototype/GUI/games.json"
 
 # Function to log messages, now writing to stderr and the log file
@@ -61,6 +63,8 @@ run_json_converter() {
     
     log_message "Running JSON converter: python3 $PYTHON_SCRIPT $PYTHON_SCRIPT_ARGS"
     
+    # This command still overwrites games.json due to the -o flag. 
+    # If games.json needs to be merged/appended, the python script must handle it.
     if python3 "$PYTHON_SCRIPT" games_list.txt "$EXTRACT_DIR" -o games.json; then
         log_message "✓ JSON conversion successful. Output: $EXTRACT_DIR/games.json"
         log_message "✓ Converted $rom_count ROMs to JSON format"
@@ -178,10 +182,6 @@ main() {
     # Check if Python script is available
     check_python_script
     local python_available=$?
-    
-    # Initialize output file (clear it only once at the beginning)
-    > "$OUTPUT_FILE"
-    log_message "Initialized output file: $OUTPUT_FILE"
     
     # Process files
     process_compressed_files

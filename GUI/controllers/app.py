@@ -1,299 +1,296 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import * 
+from tkinter import ttk, Canvas
 from tkinter.font import Font
-from tkinter import Canvas
 import os
 import subprocess
-from PIL import Image, ImageTk
 import json
+import pygame
+
+from .remapper_gui import ControllerRemapperFrame
 
 class TouchMenuApp:
-    def __init__(self, root: Tk): 
+    def __init__(self, root: tk.Tk): 
         self.root = root
-        self.root.title("Touch Menu Demo")
+        self.root.title("Touch Menu")
         self.root.geometry("1024x600")
-        self.root.configure(bg="blue")
+        self.root.configure(bg="#36b0e8")
         self.root.resizable(True, True)
         self.root.minsize(width=788, height=588)
-        self.canvas = Canvas(self.root, bg="blue", highlightthickness=0)
         
-        # Game data storage
+        self.joystick = None
+        self.held_shoulder_buttons = set()
+        self.SHOULDER_BUTTONS = {4, 5, 6, 7} # L1, R1, L2, R2
+        self.STICK_BUTTONS = {10, 11} # L3, R3
+
+        # ### NEW: State management for menu navigation ###
+        self.navigable_widgets = [] # List of buttons on the current page
+        self.current_focus_index = -1 # Index of the currently "selected" button
+        self.last_nav_time = 0 # For debouncing D-pad input
+        self.NAV_DEBOUNCE_MS = 180 # Cooldown between navigation inputs (in milliseconds)
+        # ### NEW: END ###
+
         self.games_data = {}
-        self.current_console = None
+        self.load_games_data("games.json")
         
-        # Configure styles
         self.setup_styles()
         
-        # Create main menu
-        self.create_main_menu()
+        container = ttk.Frame(self.root, style='Main.TFrame')
+        container.pack(fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
+        for F in (MainMenuFrame, GameListFrame, ControllerRemapperFrame):
+            page_name = F.__name__
+            frame = F(parent=container, controller=self)
+            self.frames[page_name] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.show_frame("MainMenuFrame")
+        self._initialize_gamepad_listener()
+
+    # ### NEW: Method to register which buttons can be navigated on the current screen ###
+    def register_navigable_widgets(self, widgets: list):
+        """Sets the list of widgets for controller navigation on the current frame."""
+        self.navigable_widgets = widgets
+        # If there are any navigable widgets, set focus to the first one
+        if self.navigable_widgets:
+            self._update_focus(old_index=-1, new_index=0)
+        else:
+            self.current_focus_index = -1
+    # ### NEW: END ###
+            
+    def show_frame(self, page_name, console_name=None):
+        """Raises the requested frame to the top and prepares it for navigation."""
+        frame = self.frames[page_name]
+        if page_name == "GameListFrame" and console_name:
+            frame.set_console(console_name)
+            frame.generate_game_list()
         
-        # Load games data from JSON
-        self.load_games_data("games.json")
-        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+        frame.tkraise()
+        # ### NEW: After showing a frame, register its buttons for navigation ###
+        # We call a method on the frame itself to get its buttons.
+        if hasattr(frame, 'get_navigable_widgets'):
+            self.register_navigable_widgets(frame.get_navigable_widgets())
+        else:
+            self.register_navigable_widgets([]) # Clear navigation for this frame
+    # ### NEW: END ###
+
+    def _initialize_gamepad_listener(self):
+        pygame.init()
+        pygame.joystick.init()
+        if pygame.joystick.get_count() > 0:
+            self.joystick = pygame.joystick.Joystick(0)
+            self.joystick.init()
+            print(f"✅ Gamepad '{self.joystick.get_name()}' connected.")
+            self._poll_gamepad_events()
+        else:
+            print("⚠️ No gamepad connected.")
+
+    def _poll_gamepad_events(self):
+        """Checks for pygame events for both shortcuts and menu navigation."""
+        current_time = pygame.time.get_ticks()
+
+        for event in pygame.event.get():
+            # --- Return-to-home shortcut logic (unchanged) ---
+            if event.type == pygame.JOYBUTTONDOWN:
+                if event.button in self.SHOULDER_BUTTONS:
+                    self.held_shoulder_buttons.add(event.button)
+                if event.button in self.STICK_BUTTONS and self.SHOULDER_BUTTONS.issubset(self.held_shoulder_buttons):
+                    self.show_frame("MainMenuFrame")
+                
+                # ### NEW: Handle "Select" button press (X button is usually button 0) ###
+                if event.button == 0 and self.current_focus_index != -1:
+                    focused_widget = self.navigable_widgets[self.current_focus_index]
+                    print(f"Controller selected: {focused_widget.cget('text')}")
+                    focused_widget.invoke() # Programmatically "click" the button
+                # ### NEW: END ###
+
+            elif event.type == pygame.JOYBUTTONUP:
+                if event.button in self.SHOULDER_BUTTONS:
+                    self.held_shoulder_buttons.discard(event.button)
+            
+            # ### NEW: Handle D-Pad navigation ###
+            elif event.type == pygame.JOYHATMOTION:
+                # event.value is a tuple (x, y); e.g., (0, 1) is UP, (0, -1) is DOWN
+                hat_x, hat_y = event.value
+                # Debounce to prevent rapid scrolling
+                if current_time - self.last_nav_time > self.NAV_DEBOUNCE_MS:
+                    if hat_y == 1: # D-Pad UP
+                        self._navigate_menu(-1)
+                        self.last_nav_time = current_time
+                    elif hat_y == -1: # D-Pad DOWN
+                        self._navigate_menu(1)
+                        self.last_nav_time = current_time
+            # ### NEW: END ###
+
+        self.root.after(20, self._poll_gamepad_events) # Poll more frequently for responsiveness
+
+    # ### NEW: Methods for managing focus ###
+    def _navigate_menu(self, direction: int):
+        """Move the focus up or down in the widget list."""
+        if not self.navigable_widgets:
+            return
+
+        # Calculate the new index, wrapping around if necessary
+        old_index = self.current_focus_index
+        new_index = (old_index + direction) % len(self.navigable_widgets)
+        
+        self._update_focus(old_index, new_index)
+
+    def _update_focus(self, old_index: int, new_index: int):
+        """Update the visual style of the buttons to show focus."""
+        # Remove focus from the old widget, if it exists
+        if old_index != -1 and old_index < len(self.navigable_widgets):
+            widget = self.navigable_widgets[old_index]
+            # Infer original style from the widget's text
+            original_style = 'Remapper.TButton' if "CONFIGURE" in widget.cget('text') else 'Small.TButton'
+            widget.configure(style=original_style)
+
+        # Apply focus to the new widget
+        if new_index != -1 and new_index < len(self.navigable_widgets):
+            widget = self.navigable_widgets[new_index]
+            widget.configure(style='Focus.TButton')
+            self.current_focus_index = new_index
+    # ### NEW: END ###
 
     def setup_styles(self):
-        """Configure touch-friendly styles"""
         self.big_font = Font(family='Helvetica', size=24, weight='bold')
         self.style = ttk.Style()
-        try:
-            self.style.theme_use('clam')
-        except Exception:
-            pass
-
+        self.style.theme_use('clam')
         self.style.configure('Main.TFrame', background="#36b0e8")
-    
+        self.style.configure('TLabel', background='#36b0e8', foreground='white', font=('Helvetica', 14, 'bold'))
         self.style.configure(
-            'Small.TButton',
-            font=self.big_font,
-            padding=30,
-            relief='flat',
-            foreground='white')
-        
-        self.style.map('Small.TButton',background=[('active', '#2980b9'), ('pressed', '#1c638e')])
-  
-    def load_games_data(self, json_file):
-        """Load game data from JSON file with console-based structure"""
-        try:
-            with open(json_file, 'r') as file:
-                self.games_data = json.load(file)
-            
-            print("Games data loaded successfully")
-            print(f"Loaded consoles: {list(self.games_data.keys())}")
-            for console, games in self.games_data.items():
-                print(f"{console}: {len(games)} games")
-                
-        except FileNotFoundError:
-            print(f"Error: {json_file} not found")
-            # Create empty data structure
-            self.games_data = {
-                "Super Nintendo": [],
-                "Game Boy Advance": [],
-                "Mega Drive": [],
-                "Playstation 1": []
-            }
-        except json.JSONDecodeError as e:
-            print(f"Error: {json_file} contains invalid JSON: {e}")
-            self.games_data = {
-                "Super Nintendo": [],
-                "Game Boy Advance": [],
-                "Mega Drive": [],
-                "Playstation 1": []
-            }
-
-    def organize_games_by_console(self, raw_data):
-        """Organize games by console based on file extension"""
-        consoles = {
-            "Super Nintendo": [".sfc", ".smc"],
-            "Game Boy Advance": [".gba"],
-            "Mega Drive": [".md", ".gen"],
-            "Playstation 1": [".cue", ".bin", ".img"]
-        }
-        
-        organized_data = {console: [] for console in consoles.keys()}
-        
-        for filename, game_info in raw_data.items():
-            # Get file extension
-            _, ext = os.path.splitext(filename)
-            ext = ext.lower()
-            
-            # Find which console this game belongs to
-            found_console = None
-            for console, extensions in consoles.items():
-                if ext in extensions:
-                    found_console = console
-                    break
-            
-            if found_console:
-                # Add the game to the appropriate console list
-                organized_data[found_console].append({
-                    "name": game_info["name"],
-                    "path": game_info["path"],
-                    "core": game_info["core"]
-                })
-        
-        return organized_data
-
-    def load_icon(self, icon_path, size=(100,100)):
-        try:
-            if not os.path.exists(icon_path):
-                raise FileNotFoundError(f"Icon not found: {icon_path}")
-                
-            img = Image.open(icon_path)
-            img = img.resize(size, Image.Resampling.LANCZOS)
-            icon = ImageTk.PhotoImage(img)
-            
-            # Store reference to prevent garbage collection
-            if not hasattr(self, '_icon_references'):
-                self._icon_references = []
-            self._icon_references.append(icon)
-            
-            return icon
-        except Exception as e:
-            print(f"Erro ao carregar {icon_path}: {e}")
-            return None
-
-    def create_main_menu(self):
-        # Clear the current frame
-        for widget in self.root.winfo_children():
-            widget.destroy()
-            
-        main_frame = ttk.Frame(self.root, padding=20, style='Main.TFrame')
-        main_frame.pack(expand=True, fill='both')
-        
-        button = ttk.Button(main_frame,
-            image=self.load_icon("assets/gameboy.png", size=(170, 50)),
-            command=lambda: self.menu_action("Home"))
-        button.place(relx=0.1, rely=0.03)
-
-        button2 = ttk.Button(main_frame, 
-            image=self.load_icon("assets/supernintendo.png", size=(300,70)),
-            command=lambda: self.menu_action("Super Nintendo"))
-        button2.place(relx=0.1, rely=0.2)
-        
-        button3 = ttk.Button(main_frame, 
-            image=self.load_icon("assets/gameboy_advance.png", size=(200,70)),
-            command=lambda: self.menu_action("Game Boy Advance"))
-        button3.place(relx=0.1, rely=0.4)
-
-        button4 = ttk.Button(main_frame, 
-            image=self.load_icon("assets/MegaDrive.png", size=(270,70)),
-            command=lambda: self.menu_action("Mega Drive"))
-        button4.place(relx=0.1, rely=0.6)
-
-        button5 = ttk.Button(main_frame, 
-            image=self.load_icon("assets/playstation.png", size=(200,70)),
-            command=lambda: self.menu_action("Playstation 1"))
-        button5.place(relx=0.1, rely=0.8)
-        
-        # Configure grid weights
-        main_frame.grid_columnconfigure(0, weight=1)
-        main_frame.grid_columnconfigure(1, weight=1)
-        main_frame.grid_rowconfigure(0, weight=1)
-        main_frame.grid_rowconfigure(1, weight=1)
-
-    def menu_action(self, item):
-        print(f"Selected: {item}")
-        # Visual feedback
-        self.root.configure(background='#2ecc71')
-        self.root.after(200, lambda: self.root.configure(background='#ecf0f1'))
-        
-        # Store the current console selection
-        self.current_console = item
-        
-        # Show games for the selected console
-        self.show_games_for_console(item)
-        
-    def show_games_for_console(self, console_name):
-        """Display games for the selected console with scrollbar"""
-        # Clear the current frame
-        for widget in self.root.winfo_children():
-            widget.destroy()
-        
-        # Create main frame
-        main_frame = ttk.Frame(self.root, style='Main.TFrame')
-        main_frame.pack(expand=True, fill='both', padx=20, pady=20)
-        
-        # Back button
-        back_button = ttk.Button(main_frame, text="← Back to Main Menu", 
-                                command=self.create_main_menu)
-        back_button.grid(row=0, column=0, sticky="nw", pady=(0, 20))
-        
-        # Title
-        title_label = ttk.Label(main_frame, text=f"{console_name} Games", 
-                            font=self.big_font, background="#36b0e8")
-        title_label.grid(row=0, column=1, columnspan=2, pady=(0, 20))
-        
-        # Create a canvas with scrollbar for games
-        canvas = tk.Canvas(main_frame, bg="#36b0e8", highlightthickness=0)
-        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
-        scrollable_frame = ttk.Frame(canvas, style='Main.TFrame')
-        
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+            'Small.TButton', font=('Helvetica', 16, 'bold'), foreground='white',
+            background='#007BFF', padding=(20, 10), relief='raised', borderwidth=5
         )
+        self.style.map('Small.TButton', background=[('active', '#0056b3')])
+        self.style.configure(
+            'Remapper.TButton', font=('Helvetica', 18, 'bold'), foreground='black',
+            background='#FFC107', padding=(25, 12), relief='raised', borderwidth=5
+        )
+        self.style.map('Remapper.TButton', background=[('active', '#E0A800')])
         
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
+        # ### NEW: Style for the visually focused button ###
+        self.style.configure(
+            'Focus.TButton', font=('Helvetica', 18, 'bold'), foreground='black',
+            background='#52D171', padding=(25, 12), relief='raised', borderwidth=5,
+            bordercolor='white'
+        )
+        # ### NEW: END ###
         
-        canvas.grid(row=1, column=0, columnspan=3, sticky="nsew")
-        scrollbar.grid(row=1, column=3, sticky="ns")
-        
-        # Configure grid weights
-        main_frame.grid_rowconfigure(1, weight=1)
-        main_frame.grid_columnconfigure(1, weight=1)
-        
-        # Check if we have games for this console
-        if console_name in self.games_data and self.games_data[console_name]:
-            games = self.games_data[console_name]
-            
-            # Display games in a grid within the scrollable frame
-            # Display games in a grid within the scrollable frame - VERTICAL LAYOUT
-            max_rows = 6  # Fixed number of rows per column
-            row, col = 0, 0
-
-            for i, game in enumerate(games):
-                # Create a button for each game
-                game_button = ttk.Button(
-                    scrollable_frame,
-                    text=game["name"],
-                    style='Small.TButton',
-                    command=lambda g=game: self.launch_game(g)
-                )
-                game_button.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
-                
-                # Update grid position - VERTICAL FIRST
-                row += 1
-                if row >= max_rows:
-                    row = 0
-                    col += 1
-            
-            # Configure grid weights for responsive layout
-            for i in range(max_rows):
-                scrollable_frame.grid_columnconfigure(i, weight=1)
+    def load_games_data(self, json_path):
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        full_path = os.path.join(base_dir, json_path)
+        if os.path.exists(full_path):
+            try:
+                with open(full_path, 'r') as f:
+                    self.games_data = json.load(f)
+            except Exception as e:
+                print(f"Error reading games.json: {e}")
         else:
-            # No games found for this console
-            no_games_label = ttk.Label(scrollable_frame, 
-                                    text="No games found for this console.",
-                                    font=self.big_font, 
-                                    background="#36b0e8")
-            no_games_label.grid(row=0, column=0, columnspan=3, pady=50)
-    
-    # Make mouse wheel scroll work
-    def on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            print(f"JSON file not found at: {full_path}")
 
     def launch_game(self, game):
-        """Launch the selected game with better error handling"""
         print(f"Launching: {game['name']}")
-        
-        core_path = game["core"]
-        rom_path = game["path"]
-        
+        core_path, rom_path = game.get("core"), game.get("path")
         try:
-            # Visual feedback
-            self.root.configure(background='green')
-            self.root.update()
-            
             command = ["retroarch"]
             if core_path and os.path.exists(core_path):
                 command.extend(["-L", core_path])
             command.append(rom_path)
-            
-            print(f"Running command: {' '.join(command)}")
-            
-            # Launch the game (non-blocking)
             subprocess.Popen(command)
-            
-            # Return to normal background after a delay
-            self.root.after(1000, lambda: self.root.configure(background='blue'))
-            
-        except FileNotFoundError:
-            print(f"Error: retroarch not found or game file missing")
-            self.root.configure(background='red')
-            self.root.after(1000, lambda: self.root.configure(background='blue'))
         except Exception as e:
             print(f"Error launching game: {e}")
-            self.root.configure(background='red')
-            self.root.after(1000, lambda: self.root.configure(background='blue'))
+
+class MainMenuFrame(ttk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, style='Main.TFrame')
+        self.controller = controller
+        # ### NEW: Store buttons for navigation ###
+        self.navigable_buttons = []
+
+        ttk.Label(self, text="Select Console or Configure", font=controller.big_font).pack(pady=40)
+        
+        remapper_btn = ttk.Button(self, text="🎮 CONFIGURE GAMEPAD ⌨️",
+                   command=lambda: controller.show_frame("ControllerRemapperFrame"), 
+                   style='Remapper.TButton')
+        remapper_btn.pack(pady=30, padx=50)
+        self.navigable_buttons.append(remapper_btn)
+
+        self.console_container = ttk.Frame(self, style='Main.TFrame')
+        self.console_container.pack(pady=20)
+        
+        self.generate_console_buttons()
+
+    # ### NEW: Expose the list of buttons to the main controller ###
+    def get_navigable_widgets(self):
+        return self.navigable_buttons
+
+    def generate_console_buttons(self):
+        for widget in self.console_container.winfo_children():
+            widget.destroy()
+        
+        # ### NEW: Clear and repopulate the console buttons in the navigation list ###
+        # We keep the remapper button and add the console buttons after it.
+        self.navigable_buttons = self.navigable_buttons[:1]
+
+        consoles = self.controller.games_data.keys()
+        if not consoles:
+            ttk.Label(self.console_container, text="No consoles found in games.json.").pack()
+            return
+            
+        for console_name in consoles:
+            btn = ttk.Button(self.console_container, text=console_name, 
+                       command=lambda c=console_name: self.controller.show_frame("GameListFrame", console_name=c),
+                       style='Small.TButton')
+            btn.pack(side=tk.LEFT, padx=10, pady=10)
+            self.navigable_buttons.append(btn)
+
+class GameListFrame(ttk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, style='Main.TFrame')
+        self.controller = controller
+        self.console_name = None
+        # ### NEW: Store buttons for navigation ###
+        self.navigable_buttons = []
+        
+        self.header_label = ttk.Label(self, text="", font=controller.big_font)
+        self.header_label.pack(pady=10)
+
+        self.list_frame = ttk.Frame(self, style='Main.TFrame')
+        self.list_frame.pack(pady=10, padx=50, fill="x")
+
+        back_btn = ttk.Button(self, text="← Back to Consoles",
+                   command=lambda: controller.show_frame("MainMenuFrame"), 
+                   style='Small.TButton')
+        back_btn.pack(pady=20)
+        # ### NEW: The back button is also navigable ###
+        self.back_button = back_btn
+
+    # ### NEW: Expose the list of buttons to the main controller ###
+    def get_navigable_widgets(self):
+        return self.navigable_buttons
+
+    def set_console(self, console_name):
+        self.console_name = console_name
+        self.header_label.config(text=f"Games - {console_name}")
+
+    def generate_game_list(self):
+        for widget in self.list_frame.winfo_children():
+            widget.destroy()
+        
+        # ### NEW: Clear and repopulate the game buttons in the navigation list ###
+        self.navigable_buttons.clear()
+        
+        if not self.console_name: return
+
+        for game in self.controller.games_data.get(self.console_name, []):
+            btn = ttk.Button(self.list_frame, text=game['name'], 
+                       command=lambda g=game: self.controller.launch_game(g),
+                       style='Small.TButton')
+            btn.pack(fill='x', pady=5)
+            self.navigable_buttons.append(btn)
+        
+        # Add the back button to the end of the navigation list
+        self.navigable_buttons.append(self.back_button)

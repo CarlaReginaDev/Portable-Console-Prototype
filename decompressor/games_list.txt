@@ -1,2 +1,4 @@
-Downloads/games/Star Ocean (tr)_1.sfc
-Downloads/games/Sonic The Hedgehog 2 (World) (Rev A)_1.md
+Pokemon Red.gb
+Wario Land 3 (World) (En,Ja).gbc
+Star Ocean (tr)_1.sfc
+Sonic The Hedgehog 2 (World) (Rev A)_1.md

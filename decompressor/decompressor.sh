@@ -175,8 +175,8 @@ move_roms_to_main_dir() {
             # Move the ROM file
             if mv "$file" "$dest_path"; then
                 log_message "Moved ROM: $(basename "$file") -> $(basename "$dest_path")"
-                # Add the new ROM to the list, appending to the existing file
-                printf "%s\n" "$dest_path" >> "$output_file"
+                # FIXED: Add *only the filename* to the list, APENDING to the existing file
+                printf "%s\n" "$(basename "$dest_path")" >> "$output_file"
                 ((moved_count++))
             else
                 log_message "ERROR: Failed to move $file"
@@ -234,7 +234,7 @@ main() {
         # Flatten the directory if needed
         check_and_flatten "$temp_extract_dir"
         
-        # NEW: Move ROM files to main directory and add to list
+        # Move ROM files to main directory and append to list
         move_roms_to_main_dir "$temp_extract_dir" "$main_extract_dir" "$output_file"
         
         log_message "ROM list updated for: $filename"

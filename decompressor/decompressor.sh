@@ -21,11 +21,7 @@ detect_file_type() {
     local file_type=$(file -b "$file" | tr '[:upper:]' '[:lower:]')
     
     # Common ROM file extensions (expanded list)
-    local rom_extensions=("nes" "snes" "smc" "gb" "gbc" "gba" "nds" "3ds" "n64" "z64" "v64" 
-                         "gen" "md" "smd" "32x" "sms" "gg" "pce" "iso" "cue" "bin" "chd"
-                         "ps1" "ps2" "psp" "pbp" "xbox" "wad" "rvz" "gcz" "wbfs" "dol"
-                         "sfc" "a26" "a78" "col" "crt" "d64" "gdi" "pce" "sg" "ws" "wsc"
-                         "lnx" "ngc" "ngp" "vb" "zzt")
+    local rom_extensions=("smc" "gb" "gbc" "gba" "gen" "md" "smd" "iso" "cue" "bin" "ps1" "sfc")
     
     # Check if it's a known ROM extension
     for ext in "${rom_extensions[@]}"; do
@@ -126,24 +122,19 @@ check_and_flatten() {
     fi
 }
 
-# NEW FUNCTION: Move ROM files to main games directory and add to list
+# MODIFIED FUNCTION: Move ROM files to main games directory and add to list, checking for duplicates
 move_roms_to_main_dir() {
     local specific_extract_dir="$1"
     local main_extract_dir="$2"
     local output_file="$3"
     
-    log_message "Moving ROM files from $specific_extract_dir to main directory: $main_extract_dir"
+    log_message "Checking for new ROMs in $specific_extract_dir..."
     
-    # Common ROM file extensions
-    local rom_extensions=("nes" "snes" "smc" "gb" "gbc" "gba" "nds" "3ds" "n64" "z64" "v64" 
-                         "gen" "md" "smd" "32x" "sms" "gg" "pce" "iso" "cue" "bin" "chd"
-                         "ps1" "ps2" "psp" "pbp" "xbox" "wad" "rvz" "gcz" "wbfs" "dol"
-                         "sfc" "a26" "a78" "col" "crt" "d64" "gdi" "pce" "sg" "ws" "wsc"
-                         "lnx" "ngc" "ngp" "vb" "zzt")
+    local rom_extensions=("smc" "gb" "gbc" "gba" "gen" "md" "smd" "iso" "cue" "bin" "ps1" "sfc")
     
     local moved_count=0
     
-    # Find and move ROM files
+    # Find and process ROM files
     find "$specific_extract_dir" -type f -print0 | while IFS= read -r -d '' file; do
         local extension="${file##*.}"
         local is_rom=0
@@ -157,44 +148,53 @@ move_roms_to_main_dir() {
         
         if [ $is_rom -eq 1 ]; then
             local filename=$(basename "$file")
-            local dest_path="$main_extract_dir/$filename"
             
-            # Handle filename conflicts
-            if [[ -f "$dest_path" ]]; then
-                local counter=1
-                local name_part="${filename%.*}"
-                local ext_part="${filename##*.}"
-                
-                while [[ -f "$dest_path" ]]; do
-                    dest_path="$main_extract_dir/${name_part}_${counter}.${ext_part}"
-                    ((counter++))
-                done
-                log_message "File conflict resolved: $filename -> $(basename "$dest_path")"
-            fi
-            
-            # Move the ROM file
-            if mv "$file" "$dest_path"; then
-                log_message "Moved ROM: $(basename "$file") -> $(basename "$dest_path")"
-                # FIXED: Add *only the filename* to the list, APENDING to the existing file
-                printf "%s\n" "$(basename "$dest_path")" >> "$output_file"
-                ((moved_count++))
+            # *** NEW: Check if the game is already in the list ***
+            if grep -q -x "$filename" "$output_file"; then
+                log_message "Duplicate found, skipping: $filename"
+                # Clean up the duplicate file
+                rm "$file"
             else
-                log_message "ERROR: Failed to move $file"
+                local dest_path="$main_extract_dir/$filename"
+                
+                # Handle filename conflicts in the destination directory
+                if [[ -f "$dest_path" ]]; then
+                    local counter=1
+                    local name_part="${filename%.*}"
+                    local ext_part="${filename##*.}"
+                    
+                    while [[ -f "$dest_path" ]]; do
+                        dest_path="$main_extract_dir/${name_part}_${counter}.${ext_part}"
+                        ((counter++))
+                    done
+                    log_message "File conflict resolved: $filename -> $(basename "$dest_path")"
+                fi
+                
+                # Move the new ROM file
+                if mv "$file" "$dest_path"; then
+                    log_message "New game found: $(basename "$file") -> $(basename "$dest_path")"
+                    # Add the new, unique filename to the list
+                    printf "%s\n" "$(basename "$dest_path")" >> "$output_file"
+                    ((moved_count++))
+                else
+                    log_message "ERROR: Failed to move $file"
+                fi
             fi
         fi
     done
     
-    log_message "Moved $moved_count ROM file(s) to main directory"
+    if [ "$moved_count" -gt 0 ]; then
+        log_message "Added $moved_count new ROM(s) to the list."
+    else
+        log_message "No new ROMs found to add."
+    fi
     
-    # Remove the now-empty specific directory if it's empty
-    if [ -d "$specific_extract_dir" ]; then
-        local remaining_files=$(find "$specific_extract_dir" -type f | wc -l)
-        if [ "$remaining_files" -eq 0 ]; then
-            rmdir "$specific_extract_dir"
-            log_message "Removed empty directory: $specific_extract_dir"
-        else
-            log_message "Keeping directory (non-ROM files remain): $specific_extract_dir"
-        fi
+    # Remove the specific directory if it's now empty
+    if [ -d "$specific_extract_dir" ] && [ -z "$(ls -A "$specific_extract_dir")" ]; then
+        rmdir "$specific_extract_dir"
+        log_message "Removed empty temporary directory: $specific_extract_dir"
+    else
+        log_message "Keeping directory (non-ROM or duplicate files remain): $specific_extract_dir"
     fi
     
     return $moved_count
@@ -208,39 +208,35 @@ main() {
     fi
     
     local file_path="$1"
-    local main_extract_dir="$2"  # This is now the main games directory
+    local main_extract_dir="$2"
     local output_file="$3"
     
     if [ ! -f "$file_path" ]; then
         log_message "ERROR: File not found: $file_path"
         exit 1
     fi
+
+    # Create the output file if it doesn't exist, to prevent grep errors
+    touch "$output_file"
     
     local filename=$(basename "$file_path")
-    # Create a temporary directory for extraction
     local archive_name="${filename%.*}"
     local temp_extract_dir="$main_extract_dir/.temp_$archive_name"
     mkdir -p "$temp_extract_dir"
     
     log_message "Starting extraction of: $filename"
     
-    # Extract the file into the temporary directory
     if extract_file "$file_path" "$temp_extract_dir"; then
         log_message "Successfully extracted: $filename"
-        
         log_message "Deleting original compressed file: $file_path"
         rm "$file_path"
         
-        # Flatten the directory if needed
         check_and_flatten "$temp_extract_dir"
-        
-        # Move ROM files to main directory and append to list
         move_roms_to_main_dir "$temp_extract_dir" "$main_extract_dir" "$output_file"
         
         log_message "ROM list updated for: $filename"
     else
         log_message "Failed to extract: $filename"
-        # Clean up temporary directory on failure
         rm -rf "$temp_extract_dir" 2>/dev/null
         return 1
     fi

@@ -7,22 +7,25 @@ import os
 import argparse
 from pathlib import Path
 
+home = os.path.expanduser("~")
+
 def get_core_for_extension(extension: str):
+
     """Map file extensions to RetroArch cores"""
     core_mapping = {
-        '.sfc': '/home/kleber/.config/retroarch/cores/snes9x_libretro.so',
-        '.smc': '/home/kleber/.config/retroarch/cores/snes9x_libretro.so',
-        '.gba': '/home/kleber/.config/retroarch/cores/mgba_libretro.so',
-        '.gb': '/home/kleber/.config/retroarch/cores/gambatte_libretro.so',
-        '.gbc': '/home/kleber/.config/retroarch/cores/gambatte_libretro.so',
-        '.md': '/home/kleber/.config/retroarch/cores/genesis_plus_gx_libretro.so',
-        '.gen': '/home/kleber/.config/retroarch/cores/genesis_plus_gx_libretro.so',
-        '.cue': '/home/kleber/.config/retroarch/cores/pcsx_rearmed_libretro.so',
-        '.bin': '/home/kleber/.config/retroarch/cores/pcsx_rearmed_libretro.so',
-        '.img': '/home/kleber/.config/retroarch/cores/pcsx_rearmed_libretro.so',
-        '.nes': '/home/kleber/.config/retroarch/cores/fceumm_libretro.so',
-        '.nds': '/home/kleber/.config/retroarch/cores/desmume_libretro.so',
-        '.iso': '/home/kleber/.config/retroarch/cores/pcsx_rearmed_libretro.so'
+        '.sfc': f'{home}/.config/retroarch/cores/snes9x_libretro.so',
+        '.smc': f'{home}/.config/retroarch/cores/snes9x_libretro.so',
+        '.gba': f'{home}/.config/retroarch/cores/mgba_libretro.so',
+        '.gb': f'{home}/.config/retroarch/cores/gambatte_libretro.so',
+        '.gbc': f'{home}/.config/retroarch/cores/gambatte_libretro.so',
+        '.md': f'{home}/.config/retroarch/cores/genesis_plus_gx_libretro.so',
+        '.gen': f'{home}/.config/retroarch/cores/genesis_plus_gx_libretro.so',
+        '.cue': f'{home}/.config/retroarch/cores/pcsx_rearmed_libretro.so',
+        '.bin': f'{home}/.config/retroarch/cores/pcsx_rearmed_libretro.so',
+        '.img': f'{home}/.config/retroarch/cores/pcsx_rearmed_libretro.so',
+        '.nes': f'{home}/.config/retroarch/cores/fceumm_libretro.so',
+        '.nds': f'{home}/.config/retroarch/cores/desmume_libretro.so',
+        '.iso': f'{home}/.config/retroarch/cores/pcsx_rearmed_libretro.so'
     }
     return core_mapping.get(extension.lower(), '')
 
@@ -39,21 +42,11 @@ def get_console_for_extension(extension: str):
         '.cue': 'Playstation 1',
         '.bin': 'Playstation 1',
         '.img': 'Playstation 1',
-        '.iso': 'Playstation 1',
-        '.nes': 'Nintendo Entertainment System',
-        '.nds': 'Nintendo DS'
+        '.iso': 'Playstation 1'
     }
     return console_mapping.get(extension.lower(), 'Other')
 
 def parse_txt_file(txt_file_path, games_directory):
-    """
-    Parse a text file containing game names and convert to JSON structure
-    
-    Expected TXT format (one game per line):
-    Super Mario World (USA).sfc
-    Donkey Kong Country.sfc
-    Sonic The Hedgehog.md
-    """
     games_data = {}
     
     try:
@@ -129,13 +122,13 @@ def main():
     parser = argparse.ArgumentParser(description='Convert TXT game list to JSON format')
     parser.add_argument('txt_file', help='Path to the input text file')
     parser.add_argument('games_dir', help='Path to the directory containing game files')
-    parser.add_argument('-o', '--output', default='/home/kleber/playground/Portable-Console-Prototype/GUI/games.json', 
+    parser.add_argument('-o', '--output', default=f'{home}/playground/Portable-Console-Prototype/GUI/games.json', 
                        help='Output JSON file path (default: games.json)')
     
     args = parser.parse_args()
     
     # Convert the files
-    success = convert_txt_to_json(args.txt_file, args.games_dir, "/home/kleber/playground/IFRN/Portable-Console-Prototype/GUI/games.json" )
+    success = convert_txt_to_json(args.txt_file, args.games_dir, f"{home}/playground/IFRN/Portable-Console-Prototype/GUI/games.json" )
     
     if success:
         print("\nConversion completed successfully!")

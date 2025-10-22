@@ -12,17 +12,9 @@ class TouchMenuApp:#tamanho menu principal
     def __init__(self, root): 
         self.root = root
         self.root.title("Menu Principal")
-        self.root.geometry("1024x600") #colocar tela inteira
+        self.root.attributes("-fullscreen", True)
+        self.root.bind('<Escape>', self.sair_tela)
         self.root.configure(bg="blue")
-        self.root.resizable(True, True) #false
-        self.root.minsize(width= 788, height = 588)
-
-        self.big_font = Font(family='Helvetica', size=24, weight='bold')
-        self.style = ttk.Style()
-        self.style.theme_use('clam')
-        self.style.configure('Main.TFrame', background="#36b0e8")
-        self.style.configure('Small.TButton', font=self.big_font, padding=30, relief='flat', foreground='white')
-        self.style.map('Small.TButton', background=[('active', '#2980b9'), ('pressed', '#1c638e')])
 
         self.BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.ROMS_DIR = os.path.join(self.BASE_DIR, "ROMs")
@@ -53,61 +45,52 @@ class TouchMenuApp:#tamanho menu principal
             },
         }
         
-        # Inicializa o menu principal
-        self.show_platform_menu()
+        # Configure styles
+        self.setup_styles()
+        
+        # Create touch menu
+        self.create_main_menu()
 
-    # Troca para o menu de plataformas
-    def show_platform_menu(self):
-        self.clear_window()
-        self.current_menu = MenuPlataformas(self)
+    def setup_styles(self):
+        """Configure touch-friendly styles"""
+        self.big_font = Font(family='Helvetica', size=24, weight='bold')
+        self.style = ttk.Style()
+        try:
+            self.style.theme_use('clam')
+        except Exception:
+            pass
 
-    # Troca para o menu de jogos
-    def show_game_menu(self, plataforma):
-        self.clear_window()
-        self.current_menu = MenuJogos(self, plataforma)
+        self.style.configure('Main.TFrame', background="#36b0e8")
+    
+        self.style.configure(
+            'Small.TButton',
+            font=self.big_font,
+            padding=30,
+            relief='flat',
+            foreground='white')
+        
+        self.style.map('Small.TButton',background=[('active', '#2980b9'), ('pressed', '#1c638e')])
+  
 
-    # Remove todos os widgets antes de criar outro frame
-    def clear_window(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
+    def load_icon(self, icon_path, size=(100,100)):
 
-
-class MenuPlataformas:
-    def __init__(self, app):
-        self.app = app
-
-        # Frame principal com rolagem
-        self.canvas = tk.Canvas(app.root, bg="#36b0e8", highlightthickness=0)
-        self.scrollbar = ttk.Scrollbar(app.root, orient="vertical", command=self.canvas.yview)
-        self.scroll_frame = ttk.Frame(self.canvas, style='Main.TFrame')
-
-        self.scroll_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        )
-
-        self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
-
-        ttk.Label(self.scroll_frame, text="Selecione a Plataforma", font=app.big_font,
-                  background="#36b0e8", foreground="white").pack(pady=20, padx=300)
-
-        # Cria botões com imagem
-        for nome, dados in app.PLATAFORMAS.items():
-            icon = self.load_icon(dados["icon"], size=(250, 70))
-            btn = ttk.Button(self.scroll_frame, 
-                             image=icon, 
-                             style='Small.TButton', 
-                             command=lambda n=nome: app.show_game_menu(n))
-            btn.image = icon  # evitar garbage collection
-            btn.pack(pady=10, anchor='center')
-
-    def load_icon(self, path, size=(100, 100)):
-        if not os.path.exists(path):
-            print(f"Ícone não encontrado: {path}")
+        try:
+             
+            if not os.path.exists(icon_path):
+                raise FileNotFoundError(f"Icon not found: {icon_path}")
+                
+            img = Image.open(icon_path)
+            img = img.resize(size, Image.Resampling.LANCZOS)
+            icon = ImageTk.PhotoImage(img)
+            
+            # Store reference to prevent garbage collection
+            if not hasattr(self, '_icon_references'):
+                self._icon_references = []
+            self._icon_references.append(icon)
+            
+            return icon
+        except Exception as e:
+            print(f"Erro ao carregar {icon_path}: {e}")
             return None
         img = Image.open(path)
         img = img.resize(size, Image.Resampling.LANCZOS)

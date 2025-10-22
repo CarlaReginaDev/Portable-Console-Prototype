@@ -17,18 +17,28 @@ class TouchMenuApp:#tamanho menu principal
         self.root.resizable(True, True) #false
         self.root.minsize(width= 788, height = 588)
 
+        self.big_font = Font(family='Helvetica', size=24, weight='bold')
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+        self.style.configure('Main.TFrame', background="#36b0e8")
+        self.style.configure('Small.TButton', font=self.big_font, padding=30, relief='flat', foreground='white')
+        self.style.map('Small.TButton', background=[('active', '#2980b9'), ('pressed', '#1c638e')])
+
         self.BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.ROMS_DIR = os.path.join(self.BASE_DIR, "ROMs")
+        self.ASSETS_DIR = os.path.join(self.BASE_DIR, "assets")
         #dicionário deve ser mais dinâmico. A pasta de ROMs deve ficar oculta
         self.PLATAFORMAS = { 
             "Super Nintendo": {
                 "core": "snes9x",
+                "icon": os.path.join(self.ASSETS_DIR, "supernintendo.png"),
                 "roms": {
                     "Super Bomberman 4": os.path.join(self.ROMS_DIR, "snes", "Super Bomberman 4 (Japan).sfc")
                 }
             },
             "Game Boy Advance": {
                 "core": "mgba",
+                "icon": os.path.join(self.ASSETS_DIR, "gameboy_advance.png"),
                 "roms": {
                     "The Legend of Zelda": os.path.join(self.ROMS_DIR, "gb_advance", "Legend of Zelda, The - A Link to the Past & Four Swords (USA).gba")
 
@@ -36,130 +46,121 @@ class TouchMenuApp:#tamanho menu principal
             },
             "Game Boy": {
                 "core": "sameboy",
+                "icon": os.path.join(self.ASSETS_DIR, "gameboy.png"),
                 "roms": {
                     "Pokemon - Red Version": os.path.join(self.ROMS_DIR, "gameboy", "Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb")
                 }
             },
         }
         
-        # Configure styles
-        self.setup_styles()
-        
-        # Create touch menu
-        self.create_main_menu()
+        # Inicializa o menu principal
+        self.show_platform_menu()
 
-    def setup_styles(self):
-        """Configure touch-friendly styles"""
-        self.big_font = Font(family='Helvetica', size=24, weight='bold')
-        self.style = ttk.Style()
-        try:
-            self.style.theme_use('clam')
-        except Exception:
-            pass
+    # Troca para o menu de plataformas
+    def show_platform_menu(self):
+        self.clear_window()
+        self.current_menu = MenuPlataformas(self)
 
-        self.style.configure('Main.TFrame', background="#36b0e8")
-    
-        self.style.configure(
-            'Small.TButton',
-            font=self.big_font,
-            padding=30,
-            relief='flat',
-            foreground='white')
-        
-        self.style.map('Small.TButton',background=[('active', '#2980b9'), ('pressed', '#1c638e')])
-  
+    # Troca para o menu de jogos
+    def show_game_menu(self, plataforma):
+        self.clear_window()
+        self.current_menu = MenuJogos(self, plataforma)
 
-    def load_icon(self, icon_path, size=(100,100)):
-
-        try:
-             
-            if not os.path.exists(icon_path):
-                raise FileNotFoundError(f"Icon not found: {icon_path}")
-                
-            img = Image.open(icon_path)
-            img = img.resize(size, Image.Resampling.LANCZOS)
-            icon = ImageTk.PhotoImage(img)
-            
-            # Store reference to prevent garbage collection
-            if not hasattr(self, '_icon_references'):
-                self._icon_references = []
-            self._icon_references.append(icon)
-            
-            return icon
-        except Exception as e:
-            print(f"Erro ao carregar {icon_path}: {e}")
-            return None
-            
-
-
-    def create_main_menu(self):
-        main_frame = ttk.Frame(self.root, padding=20, style='Main.TFrame')
-        main_frame.pack(expand=True, fill='both')
-        
-        button = ttk.Button( main_frame,
-            image= self.load_icon("assets/gameboy.png", size=(170, 50)),
-            command=lambda: self.menu_action("Game Boy"))
-        button.place(relx=0.1, rely= 0.03)
-
-        button2 = ttk.Button( main_frame, 
-            image= self.load_icon("assets/supernintendo.png", size=(300,70)),
-            command=lambda: self.menu_action("Super Nintendo"))
-        button2.place(relx=0.1, rely=0.2)
-        
-        button3 = ttk.Button( main_frame, 
-            image= self.load_icon("assets/gameboy_advance.png", size=(200,70)),
-            command=lambda: self.menu_action("Game Boy Advance"))
-        button3.place(relx=0.1, rely= 0.4)
-
-        button4 = ttk.Button( main_frame, 
-            image= self.load_icon("assets/MegaDrive.png", size=(270,70)),
-            command=lambda: self.menu_action("Mega Drive"))
-        button4.place(relx=0.1, rely=0.6)
-
-        button5 = ttk.Button( main_frame, 
-            image= self.load_icon("assets/playstation.png", size=(200,70)),
-            command=lambda: self.menu_action("Playstation"))
-        button5.place(relx=0.1, rely=0.8)
-        
-        # Configure grid weights
-        main_frame.grid_columnconfigure(0, weight=1)
-        main_frame.grid_columnconfigure(1, weight=1)
-        main_frame.grid_rowconfigure(0, weight=1)
-        main_frame.grid_rowconfigure(1, weight=1)
-
-    def menu_action(self, plataforma):
-        if plataforma not in self.PLATAFORMAS:
-            print(f"Plataforma {plataforma} não encontrada.")
-            return
-
-    # Fecha/limpa o menu anterior
+    # Remove todos os widgets antes de criar outro frame
+    def clear_window(self):
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        frame_jogos = ttk.Frame(self.root, padding=20, style='Main.TFrame')
-        frame_jogos.pack(expand=True, fill='both')
 
-        label = ttk.Label(frame_jogos, text=f"Jogos - {plataforma}", font=self.big_font, background="#36b0e8", foreground="white")
-        label.pack(pady=10)
+class MenuPlataformas:
+    def __init__(self, app):
+        self.app = app
 
-        roms = self.PLATAFORMAS[plataforma]["roms"]
+        # Frame principal com rolagem
+        self.canvas = tk.Canvas(app.root, bg="#36b0e8", highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(app.root, orient="vertical", command=self.canvas.yview)
+        self.scroll_frame = ttk.Frame(self.canvas, style='Main.TFrame')
 
-        for jogo, caminho_rom in roms.items():
-            btn = ttk.Button(frame_jogos, text=jogo, style='Small.TButton',
-                         command=lambda r=caminho_rom, p=plataforma: self.rodar_jogo(p, r))
-            btn.pack(pady=5, fill='x')
+        self.scroll_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
 
-    # Botão para voltar ao menu principal
-        voltar_btn = ttk.Button(frame_jogos, text="⏪ Voltar", style='Small.TButton',
-                            command=self.create_main_menu)
-        voltar_btn.pack(pady=20, fill='x')
+        self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
-    def rodar_jogo(self, plataforma, caminho_rom):
-        retroarch_path = r"C:\Users\carla\Desktop\RetroArch\RetroArch-Win64\retroarch.exe" #forma de variável de ambiente
-        core = self.PLATAFORMAS[plataforma]["core"]
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        ttk.Label(self.scroll_frame, text="Selecione a Plataforma", font=app.big_font,
+                  background="#36b0e8", foreground="white").pack(pady=20, padx=300)
+
+        # Cria botões com imagem
+        for nome, dados in app.PLATAFORMAS.items():
+            icon = self.load_icon(dados["icon"], size=(250, 70))
+            btn = ttk.Button(self.scroll_frame, 
+                             image=icon, 
+                             style='Small.TButton', 
+                             command=lambda n=nome: app.show_game_menu(n))
+            btn.image = icon  # evitar garbage collection
+            btn.pack(pady=10, anchor='center')
+
+    def load_icon(self, path, size=(100, 100)):
+        if not os.path.exists(path):
+            print(f"Ícone não encontrado: {path}")
+            return None
+        img = Image.open(path)
+        img = img.resize(size, Image.Resampling.LANCZOS)
+        return ImageTk.PhotoImage(img)
+
+
+class MenuJogos:
+    def __init__(self, app, plataforma):
+        self.app = app
+        self.plataforma = plataforma
+
+        # Frame principal com rolagem
+        self.canvas = tk.Canvas(app.root, bg="#36b0e8", highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(app.root, orient="vertical", command=self.canvas.yview)
+        self.scroll_frame = ttk.Frame(self.canvas, style='Main.TFrame')
+
+        self.scroll_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        ttk.Label(self.scroll_frame, text=f"Jogos - {plataforma}", font=app.big_font,
+                  background="#36b0e8", foreground="white").pack(pady=20)
+
+        roms = app.PLATAFORMAS[plataforma]["roms"]
+
+        for jogo, caminho in roms.items():
+            btn = ttk.Button(self.scroll_frame, 
+                             text=jogo, 
+                             style='Small.TButton',
+                             command=lambda r=caminho: self.launch_game(r))
+            btn.pack(pady=10, fill='x', padx=100)
+
+        ttk.Button(self.scroll_frame, text="⬅ Voltar", style='Small.TButton',
+                   command=app.show_platform_menu).pack(pady=20)
+
+    def launch_game(self, rom_path):
+        retroarch_path = r"C:\Users\carla\Desktop\RetroArch\RetroArch-Win64\retroarch.exe"
+        core = self.app.PLATAFORMAS[self.plataforma]["core"]
 
         try:
-            subprocess.Popen([retroarch_path, "-L", core, caminho_rom])
-            print(f"Iniciando {caminho_rom} no {plataforma}...")
+            subprocess.Popen([retroarch_path, "-L", core, rom_path])
+            print(f"Abrindo {rom_path} com núcleo {core}")
         except Exception as e:
-            print("Erro ao abrir jogo:", e)
+            print("Erro ao abrir RetroArch:", e)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = TouchMenuApp(root)
+    root.mainloop()

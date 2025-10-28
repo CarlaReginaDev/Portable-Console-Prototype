@@ -1,3 +1,5 @@
 venv/
 decompressor/Downloads/
 GUI/__pycache__/
+GUI/ROMs
+GUI/assets

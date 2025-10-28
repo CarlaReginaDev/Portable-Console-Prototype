@@ -42,7 +42,7 @@ class TouchMenuApp:#tamanho menu principal
             },
             "Game Boy Advance": {
                 "core": "mgba",
-                "icon": os.path.join(self.ASSETS_DIR, "gameboy_advance.png"),
+                "icon": os.path.join(self.ASSETS_DIR, "gba.png"),
                 "roms": {
                     "The Legend of Zelda": os.path.join(self.ROMS_DIR, "gb_advance", "Legend of Zelda, The - A Link to the Past & Four Swords (USA).gba"),
                     "Final Fantasy IV Advance": os.path.join(self.ROMS_DIR, "gb_advance", "Final Fantasy IV Advance.gba"),
@@ -104,7 +104,7 @@ class TouchMenuApp:#tamanho menu principal
             relief='flat',
             foreground='white')
         
-        self.style.map('Small.TButton',background=[('active', '#2980b9'), ('pressed', '#1c638e')])
+        self.style.map('Small.TButton',background=[('active', "#f9f9f9"), ('pressed', '#1c638e')])
 
 class MenuPlataformas:
     def __init__(self, app):
@@ -119,26 +119,39 @@ class MenuPlataformas:
             "<Configure>",
             lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         )
-
+        
         self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
         self.canvas.pack(side="left", fill="both", expand=True)
 
         self.scrollbar.pack(side="right", fill="y")
 
-        ttk.Label(self.scroll_frame, text="Selecione a Plataforma", font=app.big_font,
-                  background="#36b0e8", foreground="white").pack(pady=20)
+        label_titulo = ttk.Label(self.scroll_frame, 
+                  text="Selecione uma plataforma", 
+                  font=app.big_font,
+                  background="#36b0e8", 
+                  anchor='center',
+                  foreground="white")
+        label_titulo.pack(pady=30)
+       
+        center_frame = ttk.Frame(self.scroll_frame, style='Main.TFrame')
+        center_frame.pack(expand=True)
 
         # Cria botões com imagem
         for nome, dados in app.PLATAFORMAS.items():
-            icon = self.load_icon(dados["icon"], size=(250, 70))
-            btn = ttk.Button(self.scroll_frame, image=icon, 
+            icon = self.load_icon(dados["icon"], size=(270, 70))
+            plataforma = ttk.Button(center_frame, 
+                             image=icon, 
                              style='Small.TButton',
-                             compound='top', 
+                             compound='center', 
                              command=lambda n=nome: app.show_game_menu(n))
-            btn.image = icon  # evitar garbage collection
-            btn.pack(pady=20, padx=300)
+            plataforma.image = icon  
+            plataforma.pack(pady=20)
 
+        self.canvas.bind_all(
+            "<MouseWheel>",
+            lambda e: self.canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
+        )
 
     def load_icon(self, path, size=(100,100)):
         if not os.path.exists(path):
@@ -159,10 +172,6 @@ class MenuJogos:
         self.scrollbar = ttk.Scrollbar(app.root, orient="vertical", command=self.canvas.yview)
         self.scroll_frame = ttk.Frame(self.canvas, style='Main.TFrame')
 
-        self.scroll_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        )
 
         self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
@@ -170,20 +179,33 @@ class MenuJogos:
         self.canvas.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
 
-        ttk.Label(self.scroll_frame, text=f"Jogos - {plataforma}", font=app.big_font,
-                  background="#36b0e8", foreground="white").pack(pady=20)
+                
+        voltar = ttk.Button(self.canvas, 
+                   text="⬅ Voltar", 
+                   style='Small.TButton',
+                   command=app.show_platform_menu,
+                   padding=(5,15))
+        voltar.pack(anchor='w', padx=30, pady=(20,10))
+
+        titulo = ttk.Label(self.scroll_frame, text=f"Jogos - {plataforma}", 
+                  font=app.big_font,
+                  background="#36b0e8", 
+                  foreground="white")
+        titulo.pack(pady=20)
 
         roms = app.PLATAFORMAS[plataforma]["roms"]
 
         for jogo, caminho in roms.items():
-            btn = ttk.Button(self.scroll_frame, 
+            game = ttk.Button(self.scroll_frame, 
                              text=jogo, 
                              style='Small.TButton',
                              command=lambda r=caminho: self.launch_game(r))
-            btn.pack(pady=10, fill='x', padx=100)
-
-        ttk.Button(self.scroll_frame, text="⬅ Voltar", style='Small.TButton',
-                   command=app.show_platform_menu).pack(pady=20)
+            game.pack(pady=10, fill='x', padx=100)     
+        
+        self.canvas.bind_all(
+            "<MouseWheel>",
+            lambda e: self.canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
+        )
 
     def launch_game(self, rom_path):
         retroarch_path = r"C:\Users\carla\Desktop\RetroArch\RetroArch-Win64\retroarch.exe"

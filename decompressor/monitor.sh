@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Configuration
-DOWNLOAD_DIR="Downloads"
-EXTRACT_DIR="Downloads/games"
+DOWNLOAD_DIR="./Downloads"
+EXTRACT_DIR="./Downloads/games"
 DECOMPRESSOR_SCRIPT="./decompressor.sh"
 OUTPUT_FILE="games_list.txt"
 LOG_FILE="decompression.log"
@@ -58,7 +58,21 @@ create_extract_dir() {
     if [ ! -d "$EXTRACT_DIR" ]; then mkdir -p "$EXTRACT_DIR"; log_message "Created extraction directory: $EXTRACT_DIR"; fi
 }
 find_compressed_files() {
-    find "$DOWNLOAD_DIR" -maxdepth 1 -type f \( -name "*.zip" -o -name "*.rar" -o -name "*.7z" -o -name "*.tar" -o -name "*.tar.gz" -o -name "*.tgz" -o -name "*.tar.bz2" -o -name "*.tbz" -o -name "*.tar.xz" -o -name "*.txz" -o -name "*.gz" -o -name "*.bz2" -o -name "*.xz" \) -print0
+    find "$DOWNLOAD_DIR" -maxdepth 1 -type f \( \
+        -name "*.zip" -o \
+        -name "*.rar" -o \
+        -name "*.7z" -o \
+        -name "*.tar" -o \
+        -name "*.tar.gz" -o \
+        -name "*.tgz" -o \
+        -name "*.tar.bz2" -o \
+        -name "*.tbz" -o \
+        -name "*.tar.xz" -o \
+        -name "*.txz" -o \
+        -name "*.gz" -o \
+        -name "*.bz2" -o \
+        -name "*.xz" \
+    \) -print0
 }
 count_roms() {
     if [[ -f "$OUTPUT_FILE" ]]; then wc -l < "$OUTPUT_FILE" 2>/dev/null | tr -d ' '; else echo "0"; fi
@@ -151,7 +165,7 @@ process_compressed_files() {
     local file_count=0
     cleanup_temp_dirs
     log_message "Searching for compressed files in $DOWNLOAD_DIR..."
-    file_count=$(find_custom_compressed_files | tr '\0' '\n' | wc -l)
+    file_count=$(find_compressed_files| tr '\0' '\n' | wc -l)
     
     if [ $file_count -eq 0 ]; then
         log_message "No compressed files found to process."

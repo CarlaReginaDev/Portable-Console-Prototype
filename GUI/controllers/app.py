@@ -116,10 +116,10 @@ class TouchMenuApp:
                 hat_x, hat_y = event.value
                 # Debounce to prevent rapid scrolling
                 if current_time - self.last_nav_time > self.NAV_DEBOUNCE_MS:
-                    if hat_y == 1: # D-Pad UP
+                    if hat_y == 1 or hat_x == -1: # D-Pad UP
                         self._navigate_menu(-1)
                         self.last_nav_time = current_time
-                    elif hat_y == -1: # D-Pad DOWN
+                    elif hat_y == -1 or hat_x == 1: # D-Pad DOWN
                         self._navigate_menu(1)
                         self.last_nav_time = current_time
             # ### NEW: END ###
@@ -199,7 +199,7 @@ class TouchMenuApp:
             if core_path and os.path.exists(core_path):
                 command.extend(["-L", core_path])
             command.append(rom_path)
-            subprocess.Popen(command)
+            subprocess.run(command)
         except Exception as e:
             print(f"Error launching game: {e}")
 

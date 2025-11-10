@@ -101,15 +101,22 @@ class ControllerRemapperFrame(ttk.Frame):
         self._add_button(main_frame, 'R1 (W)', row=1, col=4, padx=(10, 0))
         self._add_button(main_frame, 'L2 (A)', row=2, col=0, padx=(0, 10))
         self._add_button(main_frame, 'R2 (Z)', row=2, col=4, padx=(10, 0))
+        
         left_frame = ttk.Frame(main_frame, style='TFrame'); left_frame.grid(row=3, column=0, rowspan=3, padx=(0, 30))
+        
         self._add_button(left_frame, 'D-Pad UP', row=0, col=1); self._add_button(left_frame, 'D-Pad DOWN', row=2, col=1)
         self._add_button(left_frame, 'D-Pad LEFT', row=1, col=0); self._add_button(left_frame, 'D-Pad RIGHT', row=1, col=2)
+
         self._add_stick_group(main_frame, 'L-Stick', 'L3 (1)', row=3, col=1)
         self._add_button(main_frame, 'Select (LSHIFT)', row=4, col=2); self._add_button(main_frame, 'Start (ENTER)', row=5, col=2)
+        
         right_frame = ttk.Frame(main_frame, style='TFrame'); right_frame.grid(row=3, column=4, rowspan=3, padx=(30, 0))
+        
         self._add_button(right_frame, 'Triangle (D)', row=0, col=1); self._add_button(right_frame, 'Cross (X)', row=2, col=1)
         self._add_button(right_frame, 'Square (S)', row=1, col=0); self._add_button(right_frame, 'Circle (C)', row=1, col=2)
+        
         self._add_stick_group(main_frame, 'R-Stick', 'R3 (2)', row=3, col=3)
+        
         footer = ttk.Frame(main_frame, style='TFrame'); footer.grid(row=6, column=0, columnspan=5, pady=30)
         
         # ### CHANGE: Button commands now call the controller to switch frames

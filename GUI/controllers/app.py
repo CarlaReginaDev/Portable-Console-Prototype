@@ -16,6 +16,13 @@ class TouchMenuApp:
         self.root.configure(bg="#36b0e8")
         self.root.resizable(True, True)
         self.root.minsize(width=788, height=588)
+
+        self.big_font = Font(family='Helvetica', size=24, weight='bold')
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+        self.style.configure('Main.TFrame', background="#36b0e8")
+        self.style.configure('Small.TButton', font=self.big_font, padding=30, relief='flat', foreground='white')
+        self.style.map('Small.TButton', background=[('active', '#2980b9'), ('pressed', '#1c638e')])
         
         self.joystick = None
         self.held_shoulder_buttons = set()
@@ -159,11 +166,9 @@ class TouchMenuApp:
         self.style = ttk.Style()
         self.style.theme_use('clam')
         self.style.configure('Main.TFrame', background="#36b0e8")
-        self.style.configure('TLabel', background='#36b0e8', foreground='white', font=('Helvetica', 14, 'bold'))
-        self.style.configure(
-            'Small.TButton', font=('Helvetica', 16, 'bold'), foreground='white',
-            background='#007BFF', padding=(20, 10), relief='raised', borderwidth=5
-        )
+        self.style.configure('Small.TButton', font=self.big_font, padding=30, relief='flat', foreground='white')
+        self.style.map('Small.TButton', background=[('active', '#2980b9'), ('pressed', '#1c638e')])
+
         self.style.map('Small.TButton', background=[('active', '#0056b3')])
         self.style.configure(
             'Remapper.TButton', font=('Helvetica', 18, 'bold'), foreground='black',
@@ -252,22 +257,42 @@ class GameListFrame(ttk.Frame):
         super().__init__(parent, style='Main.TFrame')
         self.controller = controller
         self.console_name = None
-        # ### NEW: Store buttons for navigation ###
         self.navigable_buttons = []
         
+        # 1. Header (Top Row)
         self.header_label = ttk.Label(self, text="", font=controller.big_font)
-        self.header_label.pack(pady=10)
+        self.header_label.grid(row=0, column=0, columnspan=2, pady=10) # <-- USE GRID
+        
+        # 2. Setup Canvas and Scrollbar (Middle Row)
+        self.canvas = tk.Canvas(self, bg="#36b0e8", highlightthickness=0) # <-- CORRECT PARENT: self
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview) # <-- CORRECT PARENT: self
 
-        self.list_frame = ttk.Frame(self, style='Main.TFrame')
-        self.list_frame.pack(pady=10, padx=50, fill="x")
+        self.canvas.grid(row=1, column=0, sticky="nsew", padx=50) # <-- USE GRID
+        self.scrollbar.grid(row=1, column=1, sticky="ns") # <-- USE GRID
+        
+        # 3. Inner Frame for Buttons inside the Canvas
+        # All game buttons will be packed inside this frame
+        self.list_frame = ttk.Frame(self.canvas, style='Main.TFrame')
+        self.canvas.create_window((0, 0), window=self.list_frame, anchor="nw")
 
+        # Configure Canvas scrolling
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.list_frame.bind("<Configure>", lambda e: self.canvas.configure(
+            scrollregion=self.canvas.bbox("all"),
+            width=self.canvas.winfo_width()
+        ))
+        
+        # 4. Back Button (Bottom Row)
         back_btn = ttk.Button(self, text="← Back to Consoles",
                    command=lambda: controller.show_frame("MainMenuFrame"), 
                    style='Small.TButton')
-        back_btn.pack(pady=20)
-        # ### NEW: The back button is also navigable ###
+        back_btn.grid(row=2, column=0, columnspan=2, pady=20) # <-- USE GRID
         self.back_button = back_btn
 
+        # Configure weights for the grid to make the canvas expand
+        self.grid_rowconfigure(1, weight=1) # The Canvas row gets the extra space
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=0) # Scrollbar column is fixed size
     # ### NEW: Expose the list of buttons to the main controller ###
     def get_navigable_widgets(self):
         return self.navigable_buttons

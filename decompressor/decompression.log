@@ -1,0 +1,185 @@
+[2025-11-10 14:37:14] ======= SCRIPT START =======
+[2025-11-10 14:37:14] === Checking for USB drives ===
+[2025-11-10 14:37:14] === Checking for loose ROM files in Downloads ===
+[2025-11-10 14:37:14] No new loose ROMs found.
+[2025-11-10 14:37:14] Searching for compressed files in Downloads...
+[2025-11-10 14:37:14] No compressed files found to process.
+[2025-11-10 14:37:14] Python3 and JSON converter script are available
+[2025-11-10 14:37:14] === Starting JSON conversion ===
+[2025-11-10 14:37:14] Running JSON converter: python3 jsonconverter.py games_list.txt Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-10 14:37:14] ✗ JSON conversion failed with exit code 1
+[2025-11-10 14:37:14] ======= SCRIPT FINISHED =======
+[2025-11-10 14:39:11] ======= SCRIPT START =======
+[2025-11-10 14:39:11] === Checking for USB drives ===
+[2025-11-10 14:39:11] === Checking for loose ROM files in Downloads ===
+[2025-11-10 14:39:11] No new loose ROMs found.
+[2025-11-10 14:39:11] Searching for compressed files in Downloads...
+[2025-11-10 14:39:11] No compressed files found to process.
+[2025-11-10 14:39:11] Python3 and JSON converter script are available
+[2025-11-10 14:39:11] === Starting JSON conversion ===
+[2025-11-10 14:39:11] Running JSON converter: python3 jsonconverter.py games_list.txt Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-10 14:39:11] ✗ JSON conversion failed with exit code 1
+[2025-11-10 14:39:11] ======= SCRIPT FINISHED =======
+[2025-11-10 14:39:24] ======= SCRIPT START =======
+[2025-11-10 14:39:24] === Checking for USB drives ===
+[2025-11-10 14:39:24] === Checking for loose ROM files in Downloads ===
+[2025-11-10 14:39:24] No new loose ROMs found.
+[2025-11-10 14:39:24] Searching for compressed files in Downloads...
+[2025-11-10 14:39:24] No compressed files found to process.
+[2025-11-10 14:39:24] Python3 and JSON converter script are available
+[2025-11-10 14:39:24] === Starting JSON conversion ===
+[2025-11-10 14:39:24] Running JSON converter: python3 jsonconverter.py games_list.txt Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-10 14:39:24] ✗ JSON conversion failed with exit code 1
+[2025-11-10 14:39:24] ======= SCRIPT FINISHED =======
+[2025-11-10 14:39:34] ======= SCRIPT START =======
+[2025-11-10 14:39:34] === Checking for USB drives ===
+[2025-11-10 14:39:34] === Checking for loose ROM files in Downloads ===
+[2025-11-10 14:39:34] No new loose ROMs found.
+[2025-11-10 14:39:34] Searching for compressed files in Downloads...
+[2025-11-10 14:39:34] No compressed files found to process.
+[2025-11-10 14:39:34] Python3 and JSON converter script are available
+[2025-11-10 14:39:34] === Starting JSON conversion ===
+[2025-11-10 14:39:34] Running JSON converter: python3 jsonconverter.py games_list.txt Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-10 14:39:34] ✗ JSON conversion failed with exit code 1
+[2025-11-10 14:39:34] ======= SCRIPT FINISHED =======
+[2025-11-10 14:40:40] ======= SCRIPT START =======
+[2025-11-10 14:40:40] === Checking for USB drives ===
+[2025-11-10 14:40:40] === Checking for loose ROM files in Downloads ===
+[2025-11-10 14:40:40] No new loose ROMs found.
+[2025-11-10 14:40:40] Searching for compressed files in Downloads...
+[2025-11-10 14:40:40] No compressed files found to process.
+[2025-11-10 14:40:40] Python3 and JSON converter script are available
+[2025-11-10 14:40:41] === Starting JSON conversion ===
+[2025-11-10 14:40:41] Running JSON converter: python3 jsonconverter.py games_list.txt Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-10 14:40:41] ✗ JSON conversion failed with exit code 1
+[2025-11-10 14:40:41] ======= SCRIPT FINISHED =======
+[2025-11-10 14:42:37] ======= SCRIPT START =======
+[2025-11-10 14:42:37] === Checking for USB drives ===
+[2025-11-10 14:42:37] === Checking for loose ROM files in ./Downloads ===
+[2025-11-10 14:42:37] No new loose ROMs found.
+[2025-11-10 14:42:37] Searching for compressed files in ./Downloads...
+[2025-11-10 14:42:37] No compressed files found to process.
+[2025-11-10 14:42:37] Python3 and JSON converter script are available
+[2025-11-10 14:42:37] === Starting JSON conversion ===
+[2025-11-10 14:42:37] Running JSON converter: python3 jsonconverter.py games_list.txt ./Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-10 14:42:37] ✗ JSON conversion failed with exit code 1
+[2025-11-10 14:42:37] ======= SCRIPT FINISHED =======
+[2025-11-10 14:45:01] ======= SCRIPT START =======
+[2025-11-10 14:45:01] === Checking for USB drives ===
+[2025-11-10 14:45:01] === Checking for loose ROM files in ./Downloads ===
+[2025-11-10 14:45:01] No new loose ROMs found.
+[2025-11-10 14:45:01] Searching for compressed files in ./Downloads...
+[2025-11-10 14:45:01] No compressed files found to process.
+[2025-11-10 14:45:01] Python3 and JSON converter script are available
+[2025-11-10 14:45:01] === Starting JSON conversion ===
+[2025-11-10 14:45:01] Running JSON converter: python3 jsonconverter.py games_list.txt ./Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-10 14:45:01] ✗ JSON conversion failed with exit code 1
+[2025-11-10 14:45:01] ======= SCRIPT FINISHED =======
+[2025-11-10 14:45:39] ======= SCRIPT START =======
+[2025-11-10 14:45:39] === Checking for USB drives ===
+[2025-11-10 14:45:39] === Checking for loose ROM files in ./Downloads ===
+[2025-11-10 14:45:39] No new loose ROMs found.
+[2025-11-10 14:45:39] Searching for compressed files in ./Downloads...
+[2025-11-10 14:45:39] Found 1 compressed file(s) to process.
+[2025-11-10 14:45:39] === Processing: Final Fantasy V.zip ===
+[2025-11-10 14:45:39] Starting extraction of: Final Fantasy V.zip
+[2025-11-10 14:45:39] Extracting to: ./Downloads/games/.temp_Final Fantasy V
+[2025-11-10 14:45:39] Successfully extracted: Final Fantasy V.zip
+[2025-11-10 14:45:39] Deleting original compressed file: ./Downloads/Final Fantasy V.zip
+[2025-11-10 14:45:39] Directory analysis: 1 total items, 0 directories, 1 files
+[2025-11-10 14:45:39] Files are already in root directory, no action needed
+[2025-11-10 14:45:39] Checking for new ROMs in ./Downloads/games/.temp_Final Fantasy V...
+[2025-11-10 14:45:39] New game found: Final Fantasy 5 (tr).sfc -> Final Fantasy 5 (tr).sfc
+[2025-11-10 14:45:39] No new ROMs found to add.
+[2025-11-10 14:45:39] Removed empty temporary directory: ./Downloads/games/.temp_Final Fantasy V
+[2025-11-10 14:45:39] ROM list updated for: Final Fantasy V.zip
+[2025-11-10 14:45:39] ✓ Successfully processed: Final Fantasy V.zip
+[2025-11-10 14:45:39] === Completed: Final Fantasy V.zip ===
+[2025-11-10 14:45:39] Compressed file processing complete. Total ROMs in list: 2.
+[2025-11-10 14:45:39] Python3 and JSON converter script are available
+[2025-11-10 14:45:39] === Starting JSON conversion ===
+[2025-11-10 14:45:39] Running JSON converter: python3 jsonconverter.py games_list.txt ./Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-10 14:45:39] ✓ JSON conversion successful. Output: ./Downloads/games/games.json
+[2025-11-10 14:45:39] ✓ Converted 2 ROMs to JSON format
+[2025-11-10 14:45:39] ======= SCRIPT FINISHED =======
+[2025-11-10 19:45:33] ======= SCRIPT START =======
+[2025-11-10 19:45:33] === Checking for USB drives ===
+[2025-11-10 19:45:33] === Checking for loose ROM files in ./Downloads ===
+[2025-11-10 19:45:33] No new loose ROMs found.
+[2025-11-10 19:45:33] Searching for compressed files in ./Downloads...
+[2025-11-10 19:45:33] Found 1 compressed file(s) to process.
+[2025-11-10 19:45:33] === Processing: Final Fantasy V.zip ===
+[2025-11-10 19:45:33] Starting extraction of: Final Fantasy V.zip
+[2025-11-10 19:45:33] Extracting to: ./Downloads/games/.temp_Final Fantasy V
+[2025-11-10 19:45:34] Successfully extracted: Final Fantasy V.zip
+[2025-11-10 19:45:34] Deleting original compressed file: ./Downloads/Final Fantasy V.zip
+[2025-11-10 19:45:34] Directory analysis: 1 total items, 0 directories, 1 files
+[2025-11-10 19:45:34] Files are already in root directory, no action needed
+[2025-11-10 19:45:34] Checking for new ROMs in ./Downloads/games/.temp_Final Fantasy V...
+[2025-11-10 19:45:34] New game found: Final Fantasy 5 (tr).sfc -> Final Fantasy 5 (tr).sfc
+[2025-11-10 19:45:34] No new ROMs found to add.
+[2025-11-10 19:45:34] Removed empty temporary directory: ./Downloads/games/.temp_Final Fantasy V
+[2025-11-10 19:45:34] ROM list updated for: Final Fantasy V.zip
+[2025-11-10 19:45:34] ✓ Successfully processed: Final Fantasy V.zip
+[2025-11-10 19:45:34] === Completed: Final Fantasy V.zip ===
+[2025-11-10 19:45:34] Compressed file processing complete. Total ROMs in list: 1.
+[2025-11-10 19:45:34] Python3 and JSON converter script are available
+[2025-11-10 19:45:34] === Starting JSON conversion ===
+[2025-11-10 19:45:34] Running JSON converter: python3 jsonconverter.py games_list.txt ./Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-10 19:45:34] ✓ JSON conversion successful. Output: ./Downloads/games/games.json
+[2025-11-10 19:45:34] ✓ Converted 1 ROMs to JSON format
+[2025-11-10 19:45:34] ======= SCRIPT FINISHED =======
+[2025-11-11 14:38:35] ======= SCRIPT START =======
+[2025-11-11 14:38:36] === Checking for USB drives ===
+[2025-11-11 14:38:36] === Checking for loose ROM files in ./Downloads ===
+[2025-11-11 14:38:36] New loose ROM found: yoshi.sfc. Moving to games folder.
+[2025-11-11 14:38:36] ✓ Added yoshi.sfc to the list.
+[2025-11-11 14:38:36] New loose ROM found: sonic.md. Moving to games folder.
+[2025-11-11 14:38:36] ✓ Added sonic.md to the list.
+[2025-11-11 14:38:36] New loose ROM found: mario.sfc. Moving to games folder.
+[2025-11-11 14:38:36] ✓ Added mario.sfc to the list.
+[2025-11-11 14:38:36] No new loose ROMs found.
+[2025-11-11 14:38:36] Searching for compressed files in ./Downloads...
+[2025-11-11 14:38:36] Found 3 compressed file(s) to process.
+[2025-11-11 14:38:36] === Processing: sonic.tar.gz ===
+[2025-11-11 14:38:36] Starting extraction of: sonic.tar.gz
+[2025-11-11 14:38:36] Extracting to: ./Downloads/games/.temp_sonic.tar
+[2025-11-11 14:38:36] WARNING: Unknown archive format for: ./Downloads/sonic.tar.gz
+[2025-11-11 14:38:36] Failed to extract: sonic.tar.gz
+[2025-11-11 14:38:36] ✗ Failed to process: sonic.tar.gz
+[2025-11-11 14:38:36] === Completed: sonic.tar.gz ===
+[2025-11-11 14:38:36] === Processing: mario.zip ===
+[2025-11-11 14:38:36] Starting extraction of: mario.zip
+[2025-11-11 14:38:36] Extracting to: ./Downloads/games/.temp_mario
+[2025-11-11 14:38:36] Successfully extracted: mario.zip
+[2025-11-11 14:38:36] Deleting original compressed file: ./Downloads/mario.zip
+[2025-11-11 14:38:36] Directory analysis: 1 total items, 0 directories, 1 files
+[2025-11-11 14:38:36] Files are already in root directory, no action needed
+[2025-11-11 14:38:36] Checking for new ROMs in ./Downloads/games/.temp_mario...
+[2025-11-11 14:38:36] Duplicate found, skipping: mario.sfc
+[2025-11-11 14:38:36] No new ROMs found to add.
+[2025-11-11 14:38:36] Removed empty temporary directory: ./Downloads/games/.temp_mario
+[2025-11-11 14:38:36] ROM list updated for: mario.zip
+[2025-11-11 14:38:36] ✓ Successfully processed: mario.zip
+[2025-11-11 14:38:36] === Completed: mario.zip ===
+[2025-11-11 14:38:36] === Processing: yoshi.zip ===
+[2025-11-11 14:38:36] Starting extraction of: yoshi.zip
+[2025-11-11 14:38:36] Extracting to: ./Downloads/games/.temp_yoshi
+[2025-11-11 14:38:36] Successfully extracted: yoshi.zip
+[2025-11-11 14:38:36] Deleting original compressed file: ./Downloads/yoshi.zip
+[2025-11-11 14:38:36] Directory analysis: 1 total items, 0 directories, 1 files
+[2025-11-11 14:38:36] Files are already in root directory, no action needed
+[2025-11-11 14:38:36] Checking for new ROMs in ./Downloads/games/.temp_yoshi...
+[2025-11-11 14:38:36] Duplicate found, skipping: yoshi.sfc
+[2025-11-11 14:38:36] No new ROMs found to add.
+[2025-11-11 14:38:36] Removed empty temporary directory: ./Downloads/games/.temp_yoshi
+[2025-11-11 14:38:36] ROM list updated for: yoshi.zip
+[2025-11-11 14:38:36] ✓ Successfully processed: yoshi.zip
+[2025-11-11 14:38:36] === Completed: yoshi.zip ===
+[2025-11-11 14:38:36] Compressed file processing complete. Total ROMs in list: 4.
+[2025-11-11 14:38:36] Python3 and JSON converter script are available
+[2025-11-11 14:38:36] === Starting JSON conversion ===
+[2025-11-11 14:38:36] Running JSON converter: python3 jsonconverter.py games_list.txt ./Downloads/games -o ~/playground/IFRN/Portable-Console-Prototype/GUI/games.json
+[2025-11-11 14:38:36] ✓ JSON conversion successful. Output: ./Downloads/games/games.json
+[2025-11-11 14:38:36] ✓ Converted 4 ROMs to JSON format
+[2025-11-11 14:38:36] ======= SCRIPT FINISHED =======
